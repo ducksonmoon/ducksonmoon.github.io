@@ -36,11 +36,10 @@ export default function HomePage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, delay: 0.5 }}
       >
-        I create scalable, elegant, and efficient web solutions. Let's transform
+        I create scalable, elegant, and efficient web solutions. Lets transform
         your ideas into reality with a focus on clean design and performance.
       </motion.p>
 
-      {/* eslint-disable-next-line react/no-unescaped-entities */}
       <motion.a
         href="/DucksOnMoon.github.io/Mehrshad-Baqerzadegan-Resume.pdf"
         download
