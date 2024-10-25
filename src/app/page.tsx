@@ -40,6 +40,7 @@ export default function HomePage() {
         your ideas into reality with a focus on clean design and performance.
       </motion.p>
 
+      {/* eslint-disable-next-line react/no-unescaped-entities */}
       <motion.a
         href="/DucksOnMoon.github.io/Mehrshad-Baqerzadegan-Resume.pdf"
         download
