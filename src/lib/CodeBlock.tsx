@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 // @ts-expect-error
+// react-syntax-highlighter is JS Lib
 import { dracula } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { ClipboardIcon, CheckIcon } from "@heroicons/react/24/solid";
 

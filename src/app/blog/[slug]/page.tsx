@@ -29,6 +29,7 @@ export default async function BlogPostPage({
           <p className="text-sm text-gray-400 mb-12">{formattedDate}</p>
           <ReactMarkdown
             // @ts-expect-error
+            // react-syntax-highlighter is JS Lib
             components={{ code: CodeBlock }}
             remarkPlugins={[remarkGfm]}
           >
