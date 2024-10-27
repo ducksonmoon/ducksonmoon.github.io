@@ -3,11 +3,11 @@ declare module "react-syntax-highlighter" {
 
   interface SyntaxHighlighterProps {
     language?: string;
-    style?: Record<string, any>;
+    style?: React.CSSProperties | Record<string, unknown>;
     children: string;
     showLineNumbers?: boolean;
     wrapLines?: boolean;
-    lineProps?: Record<string, any>;
+    lineProps?: React.HTMLProps<HTMLDivElement>; // Replacing Record with a more specific type
     customStyle?: React.CSSProperties;
   }
 
