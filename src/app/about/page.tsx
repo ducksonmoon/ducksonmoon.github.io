@@ -1,14 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import {
-  FaBriefcase,
-  FaGlobe,
-  FaGithub,
-  FaCode,
-  FaDatabase,
-  FaTools,
-} from "react-icons/fa";
+import { FaBriefcase, FaGlobe, FaGithub, FaCode } from "react-icons/fa";
 
 const experiences = [
   {
