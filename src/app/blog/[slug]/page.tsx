@@ -28,7 +28,7 @@ export default async function BlogPostPage({
           <h1 className="text-5xl font-extrabold mb-6">{post.title}</h1>
           <p className="text-sm text-gray-400 mb-12">{formattedDate}</p>
           <ReactMarkdown
-            // @ts-ignore
+            // @ts-expect-error
             components={{ code: CodeBlock }}
             remarkPlugins={[remarkGfm]}
           >
