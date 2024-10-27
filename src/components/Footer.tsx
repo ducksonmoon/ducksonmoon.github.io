@@ -1,22 +1,8 @@
-import SocialIcons from "./SocialIcons";
-import { FaEnvelope } from "react-icons/fa";
-
 export default function Footer() {
   return (
-    <footer className="w-full py-6 bg-background flex flex-col items-center gap-4">
-      <div className="flex gap-6">
-        <SocialIcons />
-        <a
-          href="mailto:MehrshadBaqerzadegan@gmail.com"
-          aria-label="Email"
-          className="text-foreground hover:text-primary text-2xl transition-all"
-        >
-          <FaEnvelope />
-        </a>
-      </div>
-      <p className="text-sm text-foreground">
-        &copy; {new Date().getFullYear()} Mehrshad Baqerzadegan. All rights
-        reserved.
+    <footer className="w-full py-10 mt-16 text-center text-sm text-foreground shadow-md shadow-[#0a0d12]">
+      <p className="text-xs text-gray-500 mt-2">
+        &copy; {new Date().getFullYear()} All rights reserved.
       </p>
     </footer>
   );

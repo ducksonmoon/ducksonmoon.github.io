@@ -1,68 +1,105 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { TypeAnimation } from "react-type-animation";
-import { FaDownload } from "react-icons/fa";
+import React, { useState, useEffect } from "react";
+
+// Array of fun philosophical quotes for the duck
+const quotes = [
+  "To debug or not to debug—that is the question.",
+  "One cannot simply `console.log` their way to enlightenment.",
+  "A quack a day keeps the bugs away.",
+  "The journey of a thousand lines of code begins with a single import.",
+  "If you can't explain it simply, you're probably overengineering it.",
+  "Float like a duck, and don't let them see you paddling frantically under the water.",
+];
 
 export default function HomePage() {
-  return (
-    <div className="relative flex flex-col items-center justify-center min-h-screen overflow-hidden bg-gradient-to-b from-background to-gray-900 px-4 text-center">
-      <motion.h1
-        className="text-5xl sm:text-6xl font-extrabold mb-4 leading-tight tracking-tight"
-        initial={{ opacity: 0, y: -50 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 1 }}
-      >
-        Mehrshad Baqerzadegan
-      </motion.h1>
+  const [quote, setQuote] = useState("");
 
-      <TypeAnimation
-        sequence={[
-          "Frontend Developer.",
-          2000,
-          "React | Angular | Next.js.",
-          2000,
-          "Passionate about Modern Web Development.",
-          2000,
-        ]}
-        wrapper="p"
-        className="text-lg sm:text-xl text-gray-400 max-w-xl mb-8"
-        repeat={Infinity}
+  useEffect(() => {
+    setQuote(quotes[Math.floor(Math.random() * quotes.length)]);
+  }, []);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const { clientX, clientY } = e;
+    const midX = window.innerWidth / 2;
+    const midY = window.innerHeight / 2;
+
+    const moveX = (clientX - midX) * 0.02;
+    const moveY = (clientY - midY) * 0.02;
+
+    const parallaxElements = document.querySelectorAll(".parallax");
+    parallaxElements.forEach((element) => {
+      (
+        element as HTMLElement
+      ).style.transform = `translate(${moveX}px, ${moveY}px)`;
+    });
+  };
+
+  return (
+    <div
+      className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden bg-gradient-to-b from-blue-800 to-gray-900 text-white"
+      onMouseMove={handleMouseMove}
+    >
+      <motion.div
+        className="parallax absolute top-0 left-1/4 w-64 h-64 rounded-full bg-gradient-to-r from-blue-400 to-purple-500 opacity-40 blur-3xl"
+        initial={{ scale: 0.8, opacity: 0 }}
+        animate={{ scale: 1, opacity: 0.4 }}
+        transition={{ duration: 2, ease: "easeInOut" }}
+      />
+      <motion.div
+        className="parallax absolute bottom-0 right-1/4 w-72 h-72 rounded-full bg-gradient-to-r from-purple-500 to-pink-400 opacity-40 blur-3xl"
+        initial={{ scale: 0.8, opacity: 0 }}
+        animate={{ scale: 1, opacity: 0.4 }}
+        transition={{ duration: 2, ease: "easeInOut", delay: 0.5 }}
       />
 
-      <motion.p
-        className="text-md sm:text-lg text-gray-400 max-w-2xl mb-6"
-        initial={{ opacity: 0, y: 50 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, delay: 0.5 }}
-      >
-        I create scalable, elegant, and efficient web solutions. Lets transform
-        your ideas into reality with a focus on clean design and performance.
-      </motion.p>
+      <motion.img
+        src="/duck.svg"
+        alt="A wise duck"
+        className="parallax w-32 h-32 mb-8 z-10 cursor-pointer"
+        initial={{ y: -20 }}
+        animate={{ y: [0, -10, 0] }}
+        transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
+        whileHover={{ scale: 1.1 }}
+        onClick={() => {
+          setQuote(quotes[Math.floor(Math.random() * quotes.length)]);
+        }}
+      />
 
-      <motion.a
-        href="/DucksOnMoon.github.io/Mehrshad-Baqerzadegan-Resume.pdf"
-        download
-        className="inline-flex items-center space-x-2 text-primary hover:underline mb-12"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 1.2, delay: 0.8 }}
-      >
-        <FaDownload className="text-xl" />
-        <span>Download My Resume</span>
-      </motion.a>
-
-      {/* Scroll Indicator */}
       <motion.div
-        className="absolute bottom-10 animate-bounce"
+        className="relative bg-white text-gray-800 p-6 rounded-lg shadow-lg max-w-xl z-10"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ duration: 1.5, delay: 1 }}
+        transition={{ duration: 1, delay: 1 }}
       >
-        <div className="w-10 h-10 rounded-full border-2 border-primary flex items-center justify-center">
-          <div className="w-2 h-2 rounded-full bg-primary" />
-        </div>
+        <p className="text-lg font-medium">{quote}</p>
+        <div className="absolute bottom-[-20px] left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-[20px] border-r-[20px] border-t-[20px] border-l-transparent border-r-transparent border-t-white"></div>
+        <p className="text-xs italic text-gray-500 mt-4">
+          Generated by ChatGPT
+        </p>
       </motion.div>
+
+      <motion.div
+        className="mt-8 px-6 py-4 max-w-lg text-center text-gray-300 italic text-sm z-10"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 1.5, delay: 2 }}
+      >
+        <p>
+          This page has no purpose—just wise, complex words, like life itself.
+          Enjoy the randomness while it lasts!
+        </p>
+      </motion.div>
+      <motion.a
+        href="/explore"
+        className="mt-12 px-8 py-4 bg-primary text-white rounded-md hover:bg-primary-dark transition z-10"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 1.5, delay: 2.5 }}
+      >
+        Discover More
+      </motion.a>
     </div>
   );
 }

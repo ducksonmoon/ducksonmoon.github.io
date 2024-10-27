@@ -16,7 +16,7 @@ const socials = [
 
 export default function SocialIcons() {
   return (
-    <div className="flex gap-6">
+    <div className="flex gap-4">
       {socials.map(({ href, icon: Icon, label }, index) => (
         <a
           key={index}
@@ -24,7 +24,7 @@ export default function SocialIcons() {
           target="_blank"
           rel="noopener noreferrer"
           aria-label={label}
-          className="text-foreground hover:text-primary text-2xl transition-all"
+          className="text-gray-400 hover:text-[#00b4d8] text-2xl transition-all"
         >
           <Icon />
         </a>
