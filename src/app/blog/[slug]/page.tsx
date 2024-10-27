@@ -5,13 +5,8 @@ import { format } from "date-fns";
 import { getPostBySlug } from "@/lib/getPosts";
 import { CodeBlock } from "@/lib/CodeBlock";
 
-interface BlogPostProps {
-  params: { slug: string };
-}
-
-export default async function BlogPostPage({
-  params: { slug },
-}: BlogPostProps) {
+export default async function BlogPostPage({ params }) {
+  const { slug } = params;
   const post = await getPostBySlug(slug);
   const formattedDate = format(new Date(post.date), "MMMM dd, yyyy");
 
@@ -38,4 +33,16 @@ export default async function BlogPostPage({
       </div>
     </div>
   );
+}
+
+export async function generateStaticParams() {
+  const fs = (await import("fs")).promises;
+  const path = (await import("path")).default;
+
+  const postsDirectory = path.join(process.cwd(), "src/posts");
+  const filenames = await fs.readdir(postsDirectory);
+
+  return filenames.map((filename) => ({
+    slug: filename.replace(".md", ""),
+  }));
 }
