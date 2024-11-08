@@ -5,8 +5,13 @@ import { format } from "date-fns";
 import { getPostBySlug } from "@/lib/getPosts";
 import { CodeBlock } from "@/lib/CodeBlock";
 
-export default async function BlogPostPage({ params }) {
-  const { slug } = params;
+export default async function BlogPostPage({
+  params,
+}: {
+  params: { slug: string };
+}) {
+  const { slug } = await params;
+
   const post = await getPostBySlug(slug);
   const formattedDate = format(new Date(post.date), "MMMM dd, yyyy");
 
