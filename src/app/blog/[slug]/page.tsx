@@ -5,11 +5,7 @@ import { format } from "date-fns";
 import { getPostBySlug } from "@/lib/getPosts";
 import { CodeBlock } from "@/lib/CodeBlock";
 
-export default async function BlogPostPage({
-  params,
-}: {
-  params: { slug: string };
-}) {
+export default async function BlogPostPage({ params }) {
   const { slug } = await params;
 
   const post = await getPostBySlug(slug);
