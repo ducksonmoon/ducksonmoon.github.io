@@ -4,30 +4,6 @@ import { motion } from "framer-motion";
 import { FaCode } from "react-icons/fa";
 import Image from "next/image";
 
-// const experiences = [
-//   {
-//     company: "System Group",
-//     role: "Senior Frontend Engineer",
-//     period: "Jun 2021 - Present",
-//     details: [],
-//   },
-//   {
-//     company: "Nebig",
-//     role: "Frontend Developer",
-//     period: "Oct 2019 - Jun 2021",
-//     details: [],
-//   },
-// ];
-
-// const projects = [
-//   {
-//     name: "Cryptocurrency Wallet",
-//     description:
-//       "A PWA built with Angular and PrimeNG to manage crypto assets.",
-//     link: "https://github.com/ducksonmoon/crypto-wallet",
-//   },
-// ];
-
 const skills = [
   {
     category: "Programming Languages",
@@ -88,55 +64,6 @@ const SectionHeader = ({ title }) => (
     {title}
   </h1>
 );
-
-// const ExperienceCard = ({ experience }) => (
-//   <motion.div
-//     initial={{ opacity: 0, y: 50 }}
-//     animate={{ opacity: 1, y: 0 }}
-//     transition={{ duration: 0.8 }}
-//     className="flex flex-col items-start bg-[#1a1e24] p-8 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300"
-//   >
-//     <div className="flex-shrink-0 mb-4">
-//       <FaBriefcase className="text-[#38bdf8] text-4xl" />
-//     </div>
-//     <h2 className="text-3xl font-semibold mb-2">{experience.role}</h2>
-//     <p className="text-lg text-gray-400 mb-1">{experience.company}</p>
-//     <p className="text-sm text-gray-500 mb-4">{experience.period}</p>
-//     <ul className="list-disc list-inside space-y-2">
-//       {experience.details.map((detail, i) => (
-//         <li key={i} className="leading-relaxed text-gray-300">
-//           {detail}
-//         </li>
-//       ))}
-//     </ul>
-//   </motion.div>
-// );
-
-// const ProjectCard = ({ project }) => (
-//   <motion.div
-//     initial={{ opacity: 0, y: 50 }}
-//     animate={{ opacity: 1, y: 0 }}
-//     transition={{ duration: 0.8 }}
-//     className="flex flex-col items-start bg-[#1a1e24] p-8 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300"
-//   >
-//     <div className="flex-shrink-0 mb-4">
-//       <FaGlobe className="text-[#38bdf8] text-4xl" />
-//     </div>
-//     <h2 className="text-3xl font-semibold mb-2">{project.name}</h2>
-//     <p className="text-lg text-gray-400 mb-4">{project.description}</p>
-//     {project.link && (
-//       <a
-//         href={project.link}
-//         target="_blank"
-//         rel="noopener noreferrer"
-//         className="inline-flex items-center space-x-2 text-[#38bdf8] hover:underline"
-//       >
-//         <FaGithub />
-//         <span>View on GitHub</span>
-//       </a>
-//     )}
-//   </motion.div>
-// );
 
 const SkillCard = ({ skill }) => (
   <motion.div
