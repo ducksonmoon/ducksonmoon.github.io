@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import BlogCard from "@/components/BlogCard";
+import { Post } from "@/types/types";
 
-export default function BlogList({ posts }: { posts: any[] }) {
+export default function BlogList({ posts }: { posts: Post[] }) {
   const allTags = Array.from(new Set(posts.flatMap((post) => post.tags)));
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
 

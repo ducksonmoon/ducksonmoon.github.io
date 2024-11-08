@@ -1,6 +1,7 @@
+import { Post } from "@/types/types";
 import Link from "next/link";
 
-export default function BlogCard({ post }: { post: any }) {
+export default function BlogCard({ post }: { post: Post }) {
   return (
     <Link href={`/blog/${post.slug}`} className="block group">
       <div className="p-6 bg-[#161b22] rounded-lg shadow-md hover:shadow-xl transition-all">

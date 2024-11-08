@@ -1,6 +1,5 @@
 import BlogList from "@/components/BlogList";
 import { getPosts } from "@/lib/getPosts";
-import Link from "next/link";
 
 export default async function BlogListPage() {
   const posts = await getPosts();

@@ -1,14 +1,7 @@
 import fs from "fs";
 import path from "path";
 import matter from "gray-matter";
-
-export interface Post {
-  slug: string;
-  title: string;
-  date: string;
-  description: string;
-  content?: string;
-}
+import { Post } from "@/types/types";
 
 export async function getPosts(): Promise<Post[]> {
   const postsDirectory = path.join(process.cwd(), "src/posts");
