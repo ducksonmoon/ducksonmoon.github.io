@@ -92,13 +92,13 @@ export default function HomePage() {
         </p>
       </motion.div>
       <motion.a
-        href="/explore"
+        href="/about"
         className="mt-12 px-8 py-4 bg-primary text-white rounded-md hover:bg-primary-dark transition z-10"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 1.5, delay: 2.5 }}
       >
-        Discover More
+        About Me
       </motion.a>
     </div>
   );
