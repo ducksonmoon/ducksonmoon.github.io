@@ -117,7 +117,7 @@ const socialLinks = [
 
 const SectionHeader = ({ title }) => (
   <div className="relative mb-16">
-    <h1 className="text-5xl font-bold text-center text-transparent bg-clip-text bg-gradient-to-r from-[#38bdf8] to-[#6d28d9]">
+    <h1 className="text-5xl font-bold text-center px-4 py-2 overflow-visible text-transparent bg-clip-text bg-gradient-to-r from-[#38bdf8] to-[#6d28d9] bg-[length:200%_100%]">
       {title}
     </h1>
     <div className="absolute -bottom-4 left-1/2 transform -translate-x-1/2 w-24 h-1 bg-gradient-to-r from-[#38bdf8] to-[#6d28d9] rounded-full"></div>
@@ -176,7 +176,7 @@ const LearningTopicCard = ({ topic, index }) => (
           {topic.title}
         </h3>
       </div>
-      <p className="text-gray-300 text-base">
+      <p className="text-gray-300 text-base break-words whitespace-normal">
         {topic.description}
       </p>
     </div>
