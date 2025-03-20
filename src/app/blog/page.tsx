@@ -13,7 +13,7 @@ export const metadata: Metadata = {
     type: "website",
     images: [
       {
-        url: "https://ducksonmoon.github.io/og-image.svg",
+        url: "https://ducksonmoon.github.io/duck.svg",
         width: 1200,
         height: 630,
         alt: "Mehrshad Baqerzadegan Blog",
@@ -24,7 +24,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Blog | Mehrshad Baqerzadegan",
     description: "Thoughts, ideas, and tutorials on web development, design, and more by Mehrshad Baqerzadegan",
-    images: ["https://ducksonmoon.github.io/og-image.svg"],
+    images: ["https://ducksonmoon.github.io/duck.svg"],
   },
 };
 

@@ -21,7 +21,7 @@ export const metadata = {
     type: "website",
     images: [
       {
-        url: "https://ducksonmoon.github.io/og-image.svg",
+        url: "https://ducksonmoon.github.io/duck.svg",
         width: 1200,
         height: 630,
         alt: "Mehrshad Baqerzadegan Portfolio",
@@ -33,7 +33,7 @@ export const metadata = {
     title: "Mehrshad Baqerzadegan",
     description: "Software Engineer, Frontend - Portfolio showcasing skills, projects, and experience in web development",
     creator: "@sinfulspinoza",
-    images: ["https://ducksonmoon.github.io/og-image.svg"],
+    images: ["https://ducksonmoon.github.io/duck.svg"],
   },
 };
 
