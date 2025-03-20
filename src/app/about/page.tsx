@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, useScroll } from "framer-motion";
-import { FaCode, FaLaptopCode, FaDatabase, FaVial, FaBrain, FaRobot, FaCloudUploadAlt, FaToolbox, FaFileDownload, FaGithub, FaLinkedinIn, FaTwitter, FaEnvelope, FaChevronUp } from "react-icons/fa";
+import { FaCode, FaLaptopCode, FaDatabase, FaVial, FaToolbox, FaFileDownload, FaGithub, FaLinkedinIn, FaTwitter, FaEnvelope, FaChevronUp } from "react-icons/fa";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 
