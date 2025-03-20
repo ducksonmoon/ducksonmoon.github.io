@@ -6,8 +6,8 @@ import { Metadata } from "next";
 
 export { generateStaticParams };
 
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
-  const { slug } = params;
+export async function generateMetadata(props: { params: tParams }): Promise<Metadata> {
+  const { slug } = await props.params;
   const post = await getPostBySlug(slug);
   
   const ogImage = "https://ducksonmoon.github.io/og-image.svg";
