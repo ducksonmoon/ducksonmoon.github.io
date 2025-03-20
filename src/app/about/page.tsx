@@ -1,9 +1,9 @@
 "use client";
 
-import { motion, useScroll, useSpring } from "framer-motion";
+import { motion, useScroll } from "framer-motion";
 import { FaCode, FaLaptopCode, FaDatabase, FaVial, FaBrain, FaRobot, FaCloudUploadAlt, FaToolbox, FaFileDownload, FaGithub, FaLinkedinIn, FaTwitter, FaEnvelope, FaChevronUp } from "react-icons/fa";
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
 const skills = [
   {
@@ -212,7 +212,6 @@ const SocialIcon = ({ social, index }) => (
 // Back to top button component
 const BackToTopButton = () => {
   const { scrollYProgress } = useScroll();
-  const scaleX = useSpring(scrollYProgress, { stiffness: 100, damping: 30 });
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {

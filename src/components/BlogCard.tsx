@@ -12,8 +12,7 @@ export default function BlogCard({ post }: { post: Post }) {
         formattedDate = format(dateObj, 'MMMM d, yyyy');
       }
     }
-  } catch (error) {
-    // Keep original date string if formatting fails
+  } catch {
   }
 
   return (
