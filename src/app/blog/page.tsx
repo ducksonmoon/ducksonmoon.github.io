@@ -1,6 +1,32 @@
 import BlogList from "@/components/BlogList";
 import { getPosts } from "@/lib/getPosts";
 import Link from "next/link";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Blog | Mehrshad Baqerzadegan",
+  description: "Thoughts, ideas, and tutorials on web development, design, and more by Mehrshad Baqerzadegan",
+  openGraph: {
+    title: "Blog | Mehrshad Baqerzadegan",
+    description: "Thoughts, ideas, and tutorials on web development, design, and more by Mehrshad Baqerzadegan",
+    url: "https://ducksonmoon.github.io/blog",
+    type: "website",
+    images: [
+      {
+        url: "https://ducksonmoon.github.io/og-image.svg",
+        width: 1200,
+        height: 630,
+        alt: "Mehrshad Baqerzadegan Blog",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Blog | Mehrshad Baqerzadegan",
+    description: "Thoughts, ideas, and tutorials on web development, design, and more by Mehrshad Baqerzadegan",
+    images: ["https://ducksonmoon.github.io/og-image.svg"],
+  },
+};
 
 export default async function BlogListPage() {
   const posts = await getPosts();

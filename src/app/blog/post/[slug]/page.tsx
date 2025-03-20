@@ -2,9 +2,44 @@ import { getPostBySlug } from "@/lib/getPosts";
 import { generateStaticParams } from "./generateParams";
 import BlogPost from "./BlogPost";
 import { tParams } from "@/types/types";
+import { Metadata } from "next";
 
 export { generateStaticParams };
 
+export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+  const { slug } = params;
+  const post = await getPostBySlug(slug);
+  
+  const ogImage = "https://ducksonmoon.github.io/og-image.svg";
+  
+  return {
+    title: `${post.title} | Mehrshad Baqerzadegan Blog`,
+    description: post.description || post.content?.substring(0, 160) || "Read this blog post on Mehrshad Baqerzadegan's portfolio",
+    openGraph: {
+      title: post.title,
+      description: post.description || post.content?.substring(0, 160) || "Read this blog post on Mehrshad Baqerzadegan's portfolio",
+      url: `https://ducksonmoon.github.io/blog/post/${slug}`,
+      type: "article",
+      publishedTime: post.date,
+      authors: ["Mehrshad Baqerzadegan"],
+      images: [
+        {
+          url: ogImage,
+          width: 1200,
+          height: 630,
+          alt: post.title,
+        },
+      ],
+      tags: post.tags || [],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: post.title,
+      description: post.description || post.content?.substring(0, 160) || "Read this blog post on Mehrshad Baqerzadegan's portfolio",
+      images: [ogImage],
+    },
+  };
+}
 
 export default async function BlogPostPage(props: { params: tParams }) {
   const { slug } = await props.params;
