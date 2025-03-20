@@ -10,7 +10,7 @@ export async function generateMetadata(props: { params: tParams }): Promise<Meta
   const { slug } = await props.params;
   const post = await getPostBySlug(slug);
   
-  const ogImage = "https://ducksonmoon.github.io/og-image.svg";
+  const ogImage = "https://ducksonmoon.github.io/duck.svg";
   
   return {
     title: `${post.title} | Mehrshad Baqerzadegan Blog`,
