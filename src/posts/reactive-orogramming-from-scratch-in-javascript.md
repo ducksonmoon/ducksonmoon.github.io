@@ -37,8 +37,6 @@ Reactive Programming in JavaScript leverages streams and observables to manage a
 
 ---
 
-<a name="introduction"></a>
-
 ## 1. Introduction: The "Why" of Reactive Programming
 
 Modern JavaScript applications deal with a variety of asynchronous data:
@@ -61,7 +59,6 @@ Traditionally, you might handle these scenarios using callbacks, `async/await`, 
 
 ---
 
-<a name="fundamentals"></a>
 
 ## 2. Reactive Fundamentals: Streams, Observables, Observers, and Subscriptions
 
@@ -91,7 +88,6 @@ When an **observer** subscribes to an **observable**, you get a **subscription**
 
 ---
 
-<a name="under-the-hood-rxjs"></a>
 
 ## 3. Under the Hood: How RxJS Implements Observables
 
@@ -119,7 +115,6 @@ RxJS also supports advanced features like:
 
 ---
 
-<a name="subscription-lifecycle"></a>
 
 ## 4. Subscribe Method & Subscription Lifecycle
 
@@ -143,8 +138,6 @@ const subscription = myObservable.subscribe({
 
 ---
 
-<a name="teardown-logic"></a>
-
 ## 5. Teardown Logic & Unsubscribing
 
 **Teardown** is code that cleans up resources once the stream is finished or unsubscribed. For example, if you attach a DOM event listener:
@@ -166,8 +159,6 @@ function fromEvent(element, eventName) {
 When the subscriber unsubscribes or the observable completes, that returned function is called to remove the event listener, preventing memory leaks.
 
 ---
-
-<a name="simple-example"></a>
 
 ## 6. Hands-On: A Simple Reactive Example
 
@@ -229,8 +220,6 @@ Here’s a quick example that turns button clicks into a **counter** stream:
 - You could call `subscription.unsubscribe()` at any time to stop listening.
 
 ---
-
-<a name="implementing-core"></a>
 
 ## 7. Implementing a Core Reactive System From Scratch
 
@@ -306,8 +295,6 @@ function fromEvent(element, eventName) {
 
 ---
 
-<a name="advanced-concepts"></a>
-
 ## 8. Advanced Reactive Concepts and Patterns
 
 ### **Hot vs. Cold Observables**
@@ -324,8 +311,6 @@ function fromEvent(element, eventName) {
 - An observable can **emit other observables**. “Flattening operators” (like `switchMap`, `mergeMap`, etc.) handle these nested streams in advanced use cases (e.g., a search box that fires a new HTTP request on each keystroke).
 
 ---
-
-<a name="building-operators"></a>
 
 ## 9. Building Operators: Transforming, Filtering, and Combining Streams
 
@@ -406,8 +391,6 @@ function merge(...observables) {
 
 ---
 
-<a name="error-handling"></a>
-
 ## 10. Error Handling, Concurrency, and Backpressure
 
 ### **Error Handling**
@@ -430,8 +413,6 @@ function merge(...observables) {
 - These patterns prevent overload when streams emit too frequently (like mousemoves or high-velocity data feeds).
 
 ---
-
-<a name="multicasting"></a>
 
 ## 11. Multicasting: Subjects, Replay Subjects, and Sharing Streams
 
@@ -457,13 +438,9 @@ This allows multiple subscribers to share the same data source without re-runnin
 
 ---
 
-<a name="deeper-dive-operators"></a>
-
 ## 12. Deeper Dive: Advanced Operators & Patterns
 
 Operators in libraries like RxJS can get very sophisticated. Understanding these at a conceptual level helps a lot, even if you don’t memorize every operator.
-
-<a name="flattening-operators"></a>
 
 ### 12.1 Flattening Operators (mergeMap, switchMap, etc.)
 
@@ -473,30 +450,22 @@ If an observable (call it _outer_) emits other observables (_inner_), you need a
 - **switchMap**: Cancels the previous inner observable if a new one appears (great for real-time search).
 - **concatMap**: Processes each inner observable in sequence, queuing them.
 
-<a name="combining-streams"></a>
-
 ### 12.2 Combining Streams (combineLatest, forkJoin, etc.)
 
 1. **combineLatest(obsA, obsB)**: Emits whenever **any** source observable emits, providing the **latest** values from each.
 2. **forkJoin(obsA, obsB)**: Waits for all observables to complete, then emits an array of their last values. Perfect for parallel requests you want to gather at once.
 3. **withLatestFrom**: Used inside an operator chain to combine the latest values of multiple streams, but triggered only by one “primary” observable.
 
-<a name="error-handling-operators"></a>
-
 ### 12.3 Error Handling (catchError, retry)
 
 - **catchError**: Intercept an error and recover by returning a fallback observable (e.g., `of('default value')`).
 - **retry(n)**: Automatically re-subscribe to the source up to **n** times if it errors.
-
-<a name="backpressure"></a>
 
 ### 12.4 Backpressure & Throttling
 
 - **throttleTime(ms)**: Emit a value, then ignore subsequent emissions for `ms` milliseconds.
 - **debounceTime(ms)**: Wait `ms` milliseconds of silence before emitting the most recent value.
 - **bufferTime(ms)**: Collect values for `ms` milliseconds, then emit them as an array at once.
-
-<a name="scheduling-performance"></a>
 
 ### 12.5 Scheduling & Performance
 
@@ -510,13 +479,9 @@ Choosing the right scheduler can prevent blocking the UI and make rendering smoo
 
 ---
 
-<a name="two-advanced-examples"></a>
-
 ## 13. Putting It All Together: Two Advanced Examples
 
 Let’s walk through two scenarios that illustrate more advanced use of operators and reactive patterns.
-
-<a name="forkjoin-retry"></a>
 
 ### 13.1 Example 1: ForkJoin with Custom Retry Strategy
 
@@ -569,8 +534,6 @@ forkJoin([getUser(), getPosts(), getComments()])
 - **retry(2)**: Each request is retried up to two times if it fails.
 - **catchError**: Returns a fallback object instead of blowing up the entire stream.
 
-<a name="live-data-feed"></a>
-
 ### 13.2 Example 2: Live Data Feed (WebSocket) + Polling
 
 **Scenario**: You have a WebSocket feed for real-time data. If that feed disconnects or lags, fallback to periodic polling every few seconds.
@@ -619,8 +582,6 @@ dataFeed$.subscribe({
 - **race(ws$, poll$)** means if the WebSocket starts delivering data, we use that; if not, polling steps in (emitting first). This approach can be adapted to handle fallback logic.
 
 ---
-
-<a name="conclusion"></a>
 
 ## 14. Conclusion and Next Steps
 
