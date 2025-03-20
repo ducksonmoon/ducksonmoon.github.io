@@ -19,6 +19,8 @@ const skills = [
       "Next.js",
       "Angular",
       "Vue.js",
+      "Node.js",
+      "Nest.js",
       "RxJS",
       "Angular Material",
       "Tailwind",
