@@ -74,7 +74,7 @@ export default function BlogPost({ post }: { post: Post }) {
                   key={part.id}
                   components={{
                     // Only handle inline code now, as code blocks are handled separately
-                    code: ({ inline, className, children, ...props }: any) => {
+                    code: ({ inline, children, ...props }: { inline?: boolean; children: React.ReactNode; className?: string }) => {
                       if (inline) {
                         return <code className="bg-gray-800 text-white px-1 rounded" {...props}>{children}</code>;
                       }
