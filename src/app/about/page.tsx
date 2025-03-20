@@ -62,21 +62,21 @@ const skills = [
 
 const learningTopics = [
   {
-    title: "Artificial Intelligence",
-    description: "Exploring machine learning algorithms and neural networks for intelligent applications",
-    icon: FaBrain,
+    title: "Advanced SQL",
+    description: "Deepening my knowledge of complex queries, performance optimization, and advanced database concepts",
+    icon: FaDatabase,
     color: "from-blue-400 to-purple-500"
   },
   {
-    title: "Generative AI",
-    description: "Delving into generative models and their applications in creative content development",
-    icon: FaRobot,
+    title: "Nest JS",
+    description: "Building scalable server-side applications with this progressive Node.js framework",
+    icon: FaLaptopCode,
     color: "from-purple-400 to-pink-500"
   },
   {
-    title: "Cloud Architecture",
-    description: "Advancing my knowledge in scalable cloud infrastructure and serverless applications",
-    icon: FaCloudUploadAlt,
+    title: "Design Patterns",
+    description: "Studying the HeadFirst Design Patterns book to master reusable solutions to common software challenges",
+    icon: FaCode,
     color: "from-cyan-400 to-blue-500"
   },
   {
@@ -170,7 +170,7 @@ const LearningTopicCard = ({ topic, index }) => (
     <div className="p-6">
       <div className="flex items-start mb-4">
         <div className="p-3 rounded-lg bg-[#1e262f] mr-4 group-hover:bg-gradient-to-br group-hover:from-[#1e262f] group-hover:to-[#2a3038] transition-all duration-300">
-          <topic.icon className={`text-3xl bg-gradient-to-r ${topic.color} text-transparent bg-clip-text`} />
+          <topic.icon className="text-3xl text-[#38bdf8]" />
         </div>
         <h3 className="text-xl font-bold bg-gradient-to-r from-[#38bdf8] to-[#6d28d9] text-transparent bg-clip-text">
           {topic.title}
