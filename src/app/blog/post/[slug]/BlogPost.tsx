@@ -75,7 +75,7 @@ export default function BlogPost({ post }: { post: Post }) {
           {!hasTocPlaceholder && tocComponent}
           
           <div className="markdown-content">
-            {processedParts.map((part, partIndex) => {
+            {processedParts.map((part) => {
               // Render code blocks with our custom component
               if (part.type === 'code') {
                 return (
