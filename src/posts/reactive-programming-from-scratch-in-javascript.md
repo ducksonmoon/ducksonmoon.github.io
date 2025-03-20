@@ -5,39 +5,13 @@ description: "Reactive Programming in JavaScript leverages streams and observabl
 tags: ["JavaScript", "Reactive Programming", "Programming"]
 ---
 
-# **Reactive Programming from Scratch in JavaScript**
-
 Reactive Programming in JavaScript leverages streams and observables to manage asynchronous data efficiently. Built on RxJS, it offers a robust framework for handling events, network requests, and real-time updates with composable operators and effective resource management, making it ideal for scalable, event-driven applications.
 
 ---
 
-## **Table of Contents**
+{toc}
 
-1. [Introduction: The "Why" of Reactive Programming](#introduction)
-2. [Reactive Fundamentals: Streams, Observables, Observers, and Subscriptions](#fundamentals)
-3. [Under the Hood: How RxJS Implements Observables](#under-the-hood-rxjs)
-4. [Subscribe Method & Subscription Lifecycle](#subscription-lifecycle)
-5. [Teardown Logic & Unsubscribing](#teardown-logic)
-6. [Hands-On: A Simple Reactive Example](#simple-example)
-7. [Implementing a Core Reactive System From Scratch](#implementing-core)
-8. [Advanced Reactive Concepts and Patterns](#advanced-concepts)
-9. [Building Operators: Transforming, Filtering, and Combining Streams](#building-operators)
-10. [Error Handling, Concurrency, and Backpressure](#error-handling)
-11. [Multicasting: Subjects, Replay Subjects, and Sharing Streams](#multicasting)
-12. [Deeper Dive: Advanced Operators & Patterns](#deeper-dive-operators)
-    - [Flattening Operators (mergeMap, switchMap, etc.)](#flattening-operators)
-    - [Combining Streams (combineLatest, forkJoin, etc.)](#combining-streams)
-    - [Error Handling (catchError, retry)](#error-handling-operators)
-    - [Backpressure & Throttling](#backpressure)
-    - [Scheduling & Performance](#scheduling-performance)
-13. [Putting It All Together: Two Advanced Examples](#two-advanced-examples)
-    - [Example 1: ForkJoin with Custom Retry Strategy](#forkjoin-retry)
-    - [Example 2: Live Data Feed (WebSocket) + Polling](#live-data-feed)
-14. [Conclusion and Next Steps](#conclusion)
-
----
-
-## 1. Introduction: The "Why" of Reactive Programming
+## Introduction: The "Why" of Reactive Programming
 
 Modern JavaScript applications deal with a variety of asynchronous data:
 
@@ -59,8 +33,7 @@ Traditionally, you might handle these scenarios using callbacks, `async/await`, 
 
 ---
 
-
-## 2. Reactive Fundamentals: Streams, Observables, Observers, and Subscriptions
+## Reactive Fundamentals: Streams, Observables, Observers, and Subscriptions
 
 ### **Streams**
 
@@ -88,20 +61,17 @@ When an **observer** subscribes to an **observable**, you get a **subscription**
 
 ---
 
-
-## 3. Under the Hood: How RxJS Implements Observables
+## Under the Hood: How RxJS Implements Observables
 
 Although we can build a minimal implementation of observables ourselves, RxJS has refined this concept. When you do something like:
 
-
 ```js
-import { Observable } from 'rxjs';
+import { Observable } from "rxjs";
 
-const myObservable = new Observable(subscriber => {
-  subscriber.next('Hello');
+const myObservable = new Observable((subscriber) => {
+  subscriber.next("Hello");
   subscriber.complete();
 });
-
 ```
 
 1. **`new Observable`**: RxJS captures the **subscribe function** you provide.
@@ -115,18 +85,16 @@ RxJS also supports advanced features like:
 
 ---
 
-
-## 4. Subscribe Method & Subscription Lifecycle
+## Subscribe Method & Subscription Lifecycle
 
 A typical subscription in RxJS looks like this:
 
 ```js
 const subscription = myObservable.subscribe({
-  next: value => console.log(value),
-  error: err => console.error(err),
-  complete: () => console.log('Done!')
+  next: (value) => console.log(value),
+  error: (err) => console.error(err),
+  complete: () => console.log("Done!"),
 });
-
 ```
 
 **Lifecycle**:
@@ -138,14 +106,14 @@ const subscription = myObservable.subscribe({
 
 ---
 
-## 5. Teardown Logic & Unsubscribing
+## Teardown Logic & Unsubscribing
 
 **Teardown** is code that cleans up resources once the stream is finished or unsubscribed. For example, if you attach a DOM event listener:
 
 ```js
 function fromEvent(element, eventName) {
-  return new Observable(observer => {
-    const handler = event => observer.next(event);
+  return new Observable((observer) => {
+    const handler = (event) => observer.next(event);
     element.addEventListener(eventName, handler);
 
     // Teardown logic
@@ -160,58 +128,57 @@ When the subscriber unsubscribes or the observable completes, that returned func
 
 ---
 
-## 6. Hands-On: A Simple Reactive Example
+## Hands-On: A Simple Reactive Example
 
 Here’s a quick example that turns button clicks into a **counter** stream:
-
 
 ```html
 <!DOCTYPE html>
 <html>
-<head>
-  <title>Reactive Counter</title>
-</head>
-<body>
-  <button id="incBtn">Increment</button>
-  <div>Count: <span id="countValue">0</span></div>
+  <head>
+    <title>Reactive Counter</title>
+  </head>
+  <body>
+    <button id="incBtn">Increment</button>
+    <div>Count: <span id="countValue">0</span></div>
 
-  <script>
-    // Example minimal fromEvent implementation
-    function Observable(subscribeFunction) {
-      this._subscribeFunction = subscribeFunction;
-    }
-
-    Observable.prototype.subscribe = function(observer) {
-      const teardown = this._subscribeFunction(observer);
-      return {
-        unsubscribe: () => {
-          if (teardown) teardown();
-        }
-      };
-    };
-
-    function fromEvent(element, eventName) {
-      return new Observable(observer => {
-        const handler = event => observer.next(event);
-        element.addEventListener(eventName, handler);
-
-        return () => element.removeEventListener(eventName, handler);
-      });
-    }
-
-    const incBtn = document.getElementById('incBtn');
-    const countValue = document.getElementById('countValue');
-    let count = 0;
-
-    const clickObservable = fromEvent(incBtn, 'click');
-    const subscription = clickObservable.subscribe({
-      next: () => {
-        count++;
-        countValue.textContent = count;
+    <script>
+      // Example minimal fromEvent implementation
+      function Observable(subscribeFunction) {
+        this._subscribeFunction = subscribeFunction;
       }
-    });
-  </script>
-</body>
+
+      Observable.prototype.subscribe = function (observer) {
+        const teardown = this._subscribeFunction(observer);
+        return {
+          unsubscribe: () => {
+            if (teardown) teardown();
+          },
+        };
+      };
+
+      function fromEvent(element, eventName) {
+        return new Observable((observer) => {
+          const handler = (event) => observer.next(event);
+          element.addEventListener(eventName, handler);
+
+          return () => element.removeEventListener(eventName, handler);
+        });
+      }
+
+      const incBtn = document.getElementById("incBtn");
+      const countValue = document.getElementById("countValue");
+      let count = 0;
+
+      const clickObservable = fromEvent(incBtn, "click");
+      const subscription = clickObservable.subscribe({
+        next: () => {
+          count++;
+          countValue.textContent = count;
+        },
+      });
+    </script>
+  </body>
 </html>
 ```
 
@@ -221,24 +188,23 @@ Here’s a quick example that turns button clicks into a **counter** stream:
 
 ---
 
-## 7. Implementing a Core Reactive System From Scratch
+## Implementing a Core Reactive System From Scratch
 
 Let’s build a minimal reactive system that covers **observables, subscriptions,** and **teardown**.
 
 ### **Step 1: The Observable Constructor**
-
 
 ```js
 function Observable(subscribeFunction) {
   this._subscribeFunction = subscribeFunction;
 }
 
-Observable.prototype.subscribe = function(observer) {
+Observable.prototype.subscribe = function (observer) {
   // Normalize observer
   const safeObserver = {
-    next: observer.next || function() {},
-    error: observer.error || function() {},
-    complete: observer.complete || function() {}
+    next: observer.next || function () {},
+    error: observer.error || function () {},
+    complete: observer.complete || function () {},
   };
 
   // Call the function that produces values
@@ -247,33 +213,31 @@ Observable.prototype.subscribe = function(observer) {
   // Return a subscription object
   return {
     unsubscribe: () => {
-      if (typeof teardown === 'function') {
+      if (typeof teardown === "function") {
         teardown();
       }
-    }
+    },
   };
 };
-
 ```
 
 ### **Step 2: A Basic Emitter**
 
 ```js
-const greetingObservable = new Observable(observer => {
-  observer.next('Hello');
-  observer.next('Reactive World');
+const greetingObservable = new Observable((observer) => {
+  observer.next("Hello");
+  observer.next("Reactive World");
   observer.complete();
 
   return () => {
-    console.log('Teardown: cleaning up...');
+    console.log("Teardown: cleaning up...");
   };
 });
 
 const subscription = greetingObservable.subscribe({
-  next: val => console.log('Received:', val),
-  complete: () => console.log('Stream completed.')
+  next: (val) => console.log("Received:", val),
+  complete: () => console.log("Stream completed."),
 });
-
 ```
 
 - Upon subscribing, it immediately emits two values, then completes.
@@ -283,7 +247,7 @@ const subscription = greetingObservable.subscribe({
 
 ```js
 function fromEvent(element, eventName) {
-  return new Observable(observer => {
+  return new Observable((observer) => {
     const handler = (event) => observer.next(event);
     element.addEventListener(eventName, handler);
 
@@ -295,7 +259,7 @@ function fromEvent(element, eventName) {
 
 ---
 
-## 8. Advanced Reactive Concepts and Patterns
+## Advanced Reactive Concepts and Patterns
 
 ### **Hot vs. Cold Observables**
 
@@ -312,52 +276,50 @@ function fromEvent(element, eventName) {
 
 ---
 
-## 9. Building Operators: Transforming, Filtering, and Combining Streams
+## Building Operators: Transforming, Filtering, and Combining Streams
 
 Operators are the **key** to reactive programming’s expressiveness. They are functions (or methods) that take an observable, transform or combine its values, and return a **new** observable.
 
 ### **Map Operator**
 
-
 ```js
-Observable.prototype.map = function(transformFn) {
+Observable.prototype.map = function (transformFn) {
   const source = this;
-  return new Observable(observer => {
+  return new Observable((observer) => {
     const subscription = source.subscribe({
-      next: val => {
+      next: (val) => {
         try {
           observer.next(transformFn(val));
         } catch (err) {
           observer.error(err);
         }
       },
-      error: err => observer.error(err),
-      complete: () => observer.complete()
+      error: (err) => observer.error(err),
+      complete: () => observer.complete(),
     });
 
     // Teardown
     return () => subscription.unsubscribe();
   });
 };
-
 ```
 
 ### **Filter Operator**
 
 ```js
-Observable.prototype.filter = function(predicateFn) {
+Observable.prototype.filter = function (predicateFn) {
   const source = this;
-  return new Observable(observer => {
+  return new Observable((observer) => {
     const subscription = source.subscribe({
-      next: val => {
+      next: (val) => {
         try {
           if (predicateFn(val)) observer.next(val);
         } catch (err) {
           observer.error(err);
         }
       },
-      error: err => observer.error(err),
-      complete: () => observer.complete()
+      error: (err) => observer.error(err),
+      complete: () => observer.complete(),
     });
 
     return () => subscription.unsubscribe();
@@ -369,29 +331,29 @@ Observable.prototype.filter = function(predicateFn) {
 
 ```js
 function merge(...observables) {
-  return new Observable(observer => {
+  return new Observable((observer) => {
     let completedCount = 0;
-    const subscriptions = observables.map(obs =>
+    const subscriptions = observables.map((obs) =>
       obs.subscribe({
-        next: value => observer.next(value),
-        error: err => observer.error(err),
+        next: (value) => observer.next(value),
+        error: (err) => observer.error(err),
         complete: () => {
           completedCount++;
           if (completedCount === observables.length) {
             observer.complete();
           }
-        }
+        },
       })
     );
 
-    return () => subscriptions.forEach(sub => sub.unsubscribe());
+    return () => subscriptions.forEach((sub) => sub.unsubscribe());
   });
 }
 ```
 
 ---
 
-## 10. Error Handling, Concurrency, and Backpressure
+## Error Handling, Concurrency, and Backpressure
 
 ### **Error Handling**
 
@@ -401,20 +363,20 @@ function merge(...observables) {
 ### **Concurrency**
 
 - **Flattening operators**: If an observable emits other observables, operators like `mergeMap`, `concatMap`, or `switchMap` decide how to subscribe and handle concurrency.
-    - **mergeMap**: Subscribes to all inner observables concurrently.
-    - **concatMap**: Subscribes to one at a time, in order.
-    - **switchMap**: Cancels the previous inner observable if a new one arrives.
+  - **mergeMap**: Subscribes to all inner observables concurrently.
+  - **concatMap**: Subscribes to one at a time, in order.
+  - **switchMap**: Cancels the previous inner observable if a new one arrives.
 
 ### **Backpressure**
 
 - If data arrives too quickly, you might want to:
-    - **throttleTime(ms)**: Emit a value, then ignore subsequent values for a defined time.
-    - **debounceTime(ms)**: Wait until a quiet period before emitting the latest value.
+  - **throttleTime(ms)**: Emit a value, then ignore subsequent values for a defined time.
+  - **debounceTime(ms)**: Wait until a quiet period before emitting the latest value.
 - These patterns prevent overload when streams emit too frequently (like mousemoves or high-velocity data feeds).
 
 ---
 
-## 11. Multicasting: Subjects, Replay Subjects, and Sharing Streams
+## Multicasting: Subjects, Replay Subjects, and Sharing Streams
 
 ### **Subjects**
 
@@ -438,11 +400,11 @@ This allows multiple subscribers to share the same data source without re-runnin
 
 ---
 
-## 12. Deeper Dive: Advanced Operators & Patterns
+## Deeper Dive: Advanced Operators & Patterns
 
 Operators in libraries like RxJS can get very sophisticated. Understanding these at a conceptual level helps a lot, even if you don’t memorize every operator.
 
-### 12.1 Flattening Operators (mergeMap, switchMap, etc.)
+### Flattening Operators (mergeMap, switchMap, etc.)
 
 If an observable (call it _outer_) emits other observables (_inner_), you need a way to manage how those inner streams flow into the outer pipeline.
 
@@ -450,24 +412,24 @@ If an observable (call it _outer_) emits other observables (_inner_), you need a
 - **switchMap**: Cancels the previous inner observable if a new one appears (great for real-time search).
 - **concatMap**: Processes each inner observable in sequence, queuing them.
 
-### 12.2 Combining Streams (combineLatest, forkJoin, etc.)
+### Combining Streams (combineLatest, forkJoin, etc.)
 
 1. **combineLatest(obsA, obsB)**: Emits whenever **any** source observable emits, providing the **latest** values from each.
 2. **forkJoin(obsA, obsB)**: Waits for all observables to complete, then emits an array of their last values. Perfect for parallel requests you want to gather at once.
 3. **withLatestFrom**: Used inside an operator chain to combine the latest values of multiple streams, but triggered only by one “primary” observable.
 
-### 12.3 Error Handling (catchError, retry)
+### Error Handling (catchError, retry)
 
 - **catchError**: Intercept an error and recover by returning a fallback observable (e.g., `of('default value')`).
 - **retry(n)**: Automatically re-subscribe to the source up to **n** times if it errors.
 
-### 12.4 Backpressure & Throttling
+### Backpressure & Throttling
 
 - **throttleTime(ms)**: Emit a value, then ignore subsequent emissions for `ms` milliseconds.
 - **debounceTime(ms)**: Wait `ms` milliseconds of silence before emitting the most recent value.
 - **bufferTime(ms)**: Collect values for `ms` milliseconds, then emit them as an array at once.
 
-### 12.5 Scheduling & Performance
+### Scheduling & Performance
 
 RxJS includes schedulers to control how tasks are queued and executed. For instance:
 
@@ -479,37 +441,37 @@ Choosing the right scheduler can prevent blocking the UI and make rendering smoo
 
 ---
 
-## 13. Putting It All Together: Two Advanced Examples
+## Putting It All Together: Two Advanced Examples
 
 Let’s walk through two scenarios that illustrate more advanced use of operators and reactive patterns.
 
-### 13.1 Example 1: ForkJoin with Custom Retry Strategy
+### Example 1: ForkJoin with Custom Retry Strategy
 
 **Scenario**: You have three HTTP requests (user info, posts, comments). You want them all in parallel, but if any fail, you’ll retry a limited number of times before giving up.
 
 ```js
-import { ajax } from 'rxjs/ajax';
-import { forkJoin, of } from 'rxjs';
-import { catchError, retry, map } from 'rxjs/operators';
+import { ajax } from "rxjs/ajax";
+import { forkJoin, of } from "rxjs";
+import { catchError, retry, map } from "rxjs/operators";
 
 function getUser() {
-  return ajax.getJSON('https://api.example.com/user').pipe(
+  return ajax.getJSON("https://api.example.com/user").pipe(
     retry(2),
-    catchError(err => of({ error: true, details: err }))
+    catchError((err) => of({ error: true, details: err }))
   );
 }
 
 function getPosts() {
-  return ajax.getJSON('https://api.example.com/posts').pipe(
+  return ajax.getJSON("https://api.example.com/posts").pipe(
     retry(2),
-    catchError(err => of({ error: true, details: err }))
+    catchError((err) => of({ error: true, details: err }))
   );
 }
 
 function getComments() {
-  return ajax.getJSON('https://api.example.com/comments').pipe(
+  return ajax.getJSON("https://api.example.com/comments").pipe(
     retry(2),
-    catchError(err => of({ error: true, details: err }))
+    catchError((err) => of({ error: true, details: err }))
   );
 }
 
@@ -520,34 +482,33 @@ forkJoin([getUser(), getPosts(), getComments()])
     })
   )
   .subscribe({
-    next: allData => {
+    next: (allData) => {
       // If any contain error, handle it
-      console.log('All results:', allData);
+      console.log("All results:", allData);
     },
-    error: err => console.error('Total error:', err),
-    complete: () => console.log('All done!')
+    error: (err) => console.error("Total error:", err),
+    complete: () => console.log("All done!"),
   });
-
 ```
 
 - **forkJoin**: Waits for each observable to complete, then emits their last values.
 - **retry(2)**: Each request is retried up to two times if it fails.
 - **catchError**: Returns a fallback object instead of blowing up the entire stream.
 
-### 13.2 Example 2: Live Data Feed (WebSocket) + Polling
+### Example 2: Live Data Feed (WebSocket) + Polling
 
 **Scenario**: You have a WebSocket feed for real-time data. If that feed disconnects or lags, fallback to periodic polling every few seconds.
 
 ```js
-import { interval, merge, race, of } from 'rxjs';
-import { ajax } from 'rxjs/ajax';
-import { switchMap, catchError } from 'rxjs/operators';
+import { interval, merge, race, of } from "rxjs";
+import { ajax } from "rxjs/ajax";
+import { switchMap, catchError } from "rxjs/operators";
 
 function createWebSocketObservable(url) {
-  return new Observable(observer => {
+  return new Observable((observer) => {
     const socket = new WebSocket(url);
 
-    socket.onopen = () => console.log('WebSocket connected');
+    socket.onopen = () => console.log("WebSocket connected");
     socket.onmessage = (msg) => observer.next(JSON.parse(msg.data));
     socket.onerror = (err) => observer.error(err);
     socket.onclose = () => observer.complete();
@@ -560,20 +521,20 @@ function createWebSocketObservable(url) {
 function pollingObservable(intervalMs, url) {
   return interval(intervalMs).pipe(
     switchMap(() => ajax.getJSON(url)),
-    catchError(err => of({ error: true, details: err }))
+    catchError((err) => of({ error: true, details: err }))
   );
 }
 
-const ws$ = createWebSocketObservable('wss://example.com/live');
-const poll$ = pollingObservable(5000, 'https://api.example.com/data');
+const ws$ = createWebSocketObservable("wss://example.com/live");
+const poll$ = pollingObservable(5000, "https://api.example.com/data");
 
 // Race: whichever observable emits first "wins"
 const dataFeed$ = race(ws$, poll$);
 
 dataFeed$.subscribe({
-  next: data => console.log('Incoming data:', data),
-  error: err => console.error('Feed error:', err),
-  complete: () => console.log('Feed closed')
+  next: (data) => console.log("Incoming data:", data),
+  error: (err) => console.error("Feed error:", err),
+  complete: () => console.log("Feed closed"),
 });
 ```
 
@@ -583,7 +544,7 @@ dataFeed$.subscribe({
 
 ---
 
-## 14. Conclusion and Next Steps
+## Conclusion and Next Steps
 
 **Reactive programming** reimagines how we think about and handle asynchronous data. Rather than meticulously orchestrating control flow and state changes, we rely on **streams** of data, **operators** for transformation, and a **subscription model** for resource management.
 
