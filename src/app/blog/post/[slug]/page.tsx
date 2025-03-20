@@ -8,7 +8,7 @@ export { generateStaticParams };
 
 export default async function BlogPostPage(props: { params: tParams }) {
   const { slug } = await props.params;
-  console.log(slug);
+
   const post = await getPostBySlug(slug);
   
   return <BlogPost post={post} />;
