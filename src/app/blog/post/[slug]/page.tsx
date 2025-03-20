@@ -1,18 +1,14 @@
 import { getPostBySlug } from "@/lib/getPosts";
 import { generateStaticParams } from "./generateParams";
 import BlogPost from "./BlogPost";
+import { tParams } from "@/types/types";
 
 export { generateStaticParams };
 
-interface PageParams {
-  params: Promise<{ slug: string }> | { slug: string };
-}
 
-export default async function BlogPostPage({ params }: PageParams) {
-  // Ensure params is awaited
-  const resolvedParams = await params;
-  const slug = resolvedParams.slug;
-  
+export default async function BlogPostPage(props: { params: tParams }) {
+  const { slug } = await props.params;
+  console.log(slug);
   const post = await getPostBySlug(slug);
   
   return <BlogPost post={post} />;

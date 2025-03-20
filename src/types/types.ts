@@ -7,3 +7,5 @@ export interface Post {
   tags: string[];
   readingTime?: string;
 }
+
+export type tParams = Promise<{ slug: string }>;
