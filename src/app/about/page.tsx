@@ -300,9 +300,9 @@ export default function AboutPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.4 }}
             >
-              Senior Frontend Engineer with 5+ years of experience developing both enterprise (B2B) and consumer (B2C) web applications.
-              Proficient in JavaScript and TypeScript, with expertise in Angular and React for professional projects, and Node.js and Nest.js
-              for side projects. Skilled at crafting system designs and micro frontend architecture. Open to working with different stacks and
+              Software Engineer, Frontend -- developing both enterprise (B2B) and consumer (B2C) web applications.
+              Proficient in JavaScript and TypeScript, with expertise in Angular and React for professional projects, Node.js and Nest.js
+              for side projects. Skilled at crafting system designs and micro frontend architecture. Working with different stacks and
               frameworks.
             </motion.p>
             
