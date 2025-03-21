@@ -17,7 +17,7 @@ After diving into [reactive programming basics](./reactive-programming-from-scra
 
 Remember when you were a kid and would fight with your siblings over who gets to color which part of the drawing? Well, this app solves that problem - everyone can draw at once!
 
-## The complete source code for this tutorial is available in [my GitHub repository](https://github.com/ducksonmoon/drawing-app).
+The complete source code for this tutorial is available in [my GitHub repository](https://github.com/ducksonmoon/drawing-app).
 
 {toc}
 
