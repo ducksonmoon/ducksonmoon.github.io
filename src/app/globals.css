@@ -266,3 +266,319 @@
     scroll-behavior: auto !important;
   }
 }
+
+/* Light mode styles */
+.light-mode {
+  --primary-text: #1e293b;
+  --secondary-text: #475569;
+  --accent-color: #3b82f6;
+  --code-bg: #f1f5f9;
+  --border-color: #cbd5e1;
+  font-weight: 400;
+}
+
+.light-mode p {
+  color: var(--secondary-text);
+}
+
+.light-mode h1,
+.light-mode h2,
+.light-mode h3,
+.light-mode h4,
+.light-mode h5,
+.light-mode h6 {
+  color: var(--primary-text);
+}
+
+.light-mode a {
+  color: var(--accent-color);
+}
+
+.light-mode blockquote {
+  background-color: rgba(59, 130, 246, 0.1);
+  border-left: 4px solid #3b82f6;
+  color: #4b5563;
+}
+
+.light-mode code {
+  background-color: #f1f5f9;
+  color: #1e3a8a;
+}
+
+.light-mode pre {
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+}
+
+.light-mode pre code {
+  color: #1e293b;
+}
+
+.light-mode table th {
+  background-color: #f1f5f9;
+  color: #1e293b;
+}
+
+.light-mode table td {
+  border-color: #e2e8f0;
+}
+
+.light-mode table tr:nth-child(even) {
+  background-color: #f8fafc;
+}
+
+.light-mode table tr:hover {
+  background-color: #f1f5f9;
+}
+
+.light-mode hr {
+  background-color: #e2e8f0;
+}
+
+.light-mode li::marker {
+  color: #3b82f6;
+}
+
+/* Table of Contents Styling */
+.toc-container {
+  position: relative;
+  padding: 0.5rem 0;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+.toc-list {
+  list-style: none !important;
+  padding: 0;
+  margin: 0;
+}
+
+.toc-item {
+  position: relative;
+  transition: all 0.2s ease;
+  list-style-type: none !important;
+}
+
+.toc-item::marker {
+  display: none !important;
+  content: "" !important;
+}
+
+.toc-link {
+  display: flex;
+  align-items: center;
+  padding: 0.35rem 0.5rem;
+  border-radius: 4px;
+  position: relative;
+  text-decoration: none;
+  transition: all 0.25s ease-out;
+  line-height: 1.4;
+  font-size: 0.95rem;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.toc-bullet {
+  position: relative;
+  height: 5px;
+  width: 5px;
+  border-radius: 50%;
+  margin-right: 0.75rem;
+  display: inline-block;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+/* Fix for list item marker */
+.toc-item::before {
+  display: none !important;
+}
+
+.toc-text {
+  transition: all 0.15s ease;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Override markdown styles for TOC */
+.markdown-content .toc-list {
+  margin-left: 0 !important;
+  list-style: none !important;
+}
+
+.markdown-content .toc-item {
+  list-style-type: none !important;
+  padding-left: 0 !important;
+}
+
+.markdown-content .toc-item::marker {
+  display: none !important;
+  content: "" !important;
+  color: transparent !important;
+}
+
+/* TOC level-specific styling */
+.toc-level-1 .toc-link {
+  font-weight: 600;
+}
+
+.toc-level-2 .toc-link {
+  font-weight: 500;
+}
+
+.toc-level-3 .toc-link {
+  font-weight: 400;
+  font-size: 0.9rem;
+}
+
+/* Active state */
+.toc-link-active {
+  transform: translateX(3px);
+}
+
+/* Dark mode TOC */
+.markdown-content:not(.light-mode) .toc-link {
+  color: #e6e8eb;
+}
+
+.markdown-content:not(.light-mode) .toc-level-1 .toc-link {
+  color: #ffffff;
+}
+
+.markdown-content:not(.light-mode) .toc-level-2 .toc-link {
+  color: #e6e8eb;
+}
+
+.markdown-content:not(.light-mode) .toc-level-3 .toc-link {
+  color: #b4bac6;
+}
+
+.markdown-content:not(.light-mode) .toc-bullet {
+  background-color: #60a5fa;
+}
+
+.markdown-content:not(.light-mode) .toc-level-2 .toc-bullet {
+  background-color: rgba(96, 165, 250, 0.7);
+}
+
+.markdown-content:not(.light-mode) .toc-level-3 .toc-bullet {
+  background-color: rgba(96, 165, 250, 0.5);
+}
+
+.markdown-content:not(.light-mode) .toc-link:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+  color: #60a5fa;
+}
+
+.markdown-content:not(.light-mode) .toc-link-active {
+  background-color: rgba(96, 165, 250, 0.1);
+}
+
+.markdown-content:not(.light-mode) .toc-link-active .toc-bullet {
+  background-color: #38bdf8;
+  transform: scale(1.2);
+}
+
+/* Light mode TOC */
+.light-mode .toc-link {
+  color: #475569;
+}
+
+.light-mode .toc-level-1 .toc-link {
+  color: #1e293b;
+}
+
+.light-mode .toc-level-2 .toc-link {
+  color: #334155;
+}
+
+.light-mode .toc-level-3 .toc-link {
+  color: #475569;
+}
+
+.light-mode .toc-bullet {
+  background-color: #3b82f6;
+}
+
+.light-mode .toc-level-2 .toc-bullet {
+  background-color: rgba(59, 130, 246, 0.7);
+}
+
+.light-mode .toc-level-3 .toc-bullet {
+  background-color: rgba(59, 130, 246, 0.5);
+}
+
+.light-mode .toc-link:hover {
+  background-color: rgba(59, 130, 246, 0.05);
+  color: #3b82f6;
+}
+
+.light-mode .toc-link-active {
+  background-color: rgba(59, 130, 246, 0.1);
+  color: #2563eb;
+}
+
+.light-mode .toc-link-active .toc-bullet {
+  background-color: #2563eb;
+  transform: scale(1.2);
+}
+
+/* Style for mobile TOC details/summary */
+details summary {
+  cursor: pointer;
+  user-select: none;
+  list-style: none;
+  position: relative;
+  padding-right: 1.5rem;
+}
+
+details summary::-webkit-details-marker {
+  display: none;
+}
+
+details summary::after {
+  content: "";
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%) rotate(0deg);
+  width: 0.75rem;
+  height: 0.75rem;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2360a5fa' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-size: contain;
+  background-repeat: no-repeat;
+  transition: transform 0.2s ease;
+}
+
+details[open] summary::after {
+  transform: translateY(-50%) rotate(180deg);
+}
+
+.light-mode details summary::after {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%233b82f6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toc-link, .toc-bullet, .toc-item, .toc-link-active {
+    transition: none;
+  }
+}
+
+/* Scrollbar styling for TOC if overflow */
+.toc-container::-webkit-scrollbar {
+  width: 3px;
+}
+
+.toc-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.toc-container::-webkit-scrollbar-thumb {
+  background-color: rgba(96, 165, 250, 0.3);
+  border-radius: 3px;
+}
+
+.light-mode .toc-container::-webkit-scrollbar-thumb {
+  background-color: rgba(59, 130, 246, 0.3);
+}

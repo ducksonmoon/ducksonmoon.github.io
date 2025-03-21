@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 interface TableOfContentsProps {
   content: string;
@@ -8,6 +8,8 @@ interface TableOfContentsProps {
 export const TOC_PLACEHOLDER = '{toc}';
 
 export const TableOfContents: React.FC<TableOfContentsProps> = ({ content }) => {
+  const [activeId, setActiveId] = useState<string>('');
+  
   // Extract all headings (# Heading) from the content
   const headingRegex = /^(#{1,3})\s+(.*)$/gm;
   let match;
@@ -26,48 +28,93 @@ export const TableOfContents: React.FC<TableOfContentsProps> = ({ content }) => 
     headings.push({ level, text, id });
   }
 
+  // Set up intersection observer to highlight active section
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setActiveId(entry.target.id);
+          }
+        });
+      },
+      { rootMargin: '-80px 0px -80% 0px' }
+    );
+    
+    // Observe all section headings
+    headings.forEach(({ id }) => {
+      const element = document.getElementById(id);
+      if (element) {
+        observer.observe(element);
+      }
+    });
+    
+    return () => {
+      headings.forEach(({ id }) => {
+        const element = document.getElementById(id);
+        if (element) {
+          observer.unobserve(element);
+        }
+      });
+    };
+  }, [headings]);
+
   if (headings.length === 0) {
     return null;
   }
 
+  // Check if we're in light mode
+  const isDarkMode = 
+    typeof window !== 'undefined' && 
+    document.querySelector('.light-mode') === null;
+
   return (
-    <div className="toc-container my-6 p-5 bg-gradient-to-br from-gray-800/80 to-gray-900/80 backdrop-blur-sm rounded-xl border border-gray-700/50 shadow-xl">
-      <h2 className="text-xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-[#38bdf8] to-[#6d28d9]">
-        Table of Contents
-      </h2>
-      <div className="h-px w-full bg-gradient-to-r from-gray-700 via-primary/30 to-gray-700 mb-4"></div>
-      <nav aria-label="Table of contents">
-        <ul className="space-y-3">
-          {headings.map((item, index) => (
+    <nav className="toc-container" aria-label="Table of contents">
+      <ul className="toc-list" style={{ listStyle: 'none', marginLeft: 0 }}>
+        {headings.map((item, index) => {
+          const isActive = activeId === item.id;
+          
+          return (
             <li 
               key={index} 
               className={`
-                ${item.level === 1 
-                  ? 'mb-2' 
-                  : item.level === 2 
-                    ? 'ml-3' 
-                    : 'ml-6'
-                }
+                toc-item
+                ${item.level === 1 ? 'toc-level-1' : item.level === 2 ? 'toc-level-2' : 'toc-level-3'}
+                ${isActive ? 'toc-active' : ''}
               `}
+              style={{ 
+                paddingLeft: `${(item.level - 1) * 1}rem`,
+                marginBottom: item.level === 1 ? '0.75rem' : '0.5rem',
+                listStyleType: 'none'
+              }}
             >
               <a 
                 href={`#${item.id}`}
                 className={`
-                  group block transition-all duration-200 hover:translate-x-1
-                  ${item.level === 1 
-                    ? 'text-white font-medium text-[1rem]' 
-                    : item.level === 2 
-                      ? 'text-gray-200 text-[0.95rem]' 
-                      : 'text-gray-400 text-[0.9rem]'
-                  } hover:text-primary
+                  toc-link
+                  ${isActive ? 'toc-link-active' : ''}
                 `}
+                onClick={(e) => {
+                  e.preventDefault();
+                  const element = document.getElementById(item.id);
+                  if (element) {
+                    window.scrollTo({
+                      top: element.getBoundingClientRect().top + window.pageYOffset - 100,
+                      behavior: 'smooth'
+                    });
+                    setActiveId(item.id);
+                  }
+                }}
               >
-                {item.text}
+                <span className="toc-bullet" role="presentation"></span>
+                <span className="toc-text">{item.text}</span>
               </a>
             </li>
-          ))}
-        </ul>
-      </nav>
-    </div>
+          );
+        })}
+      </ul>
+    </nav>
   );
 }; 
