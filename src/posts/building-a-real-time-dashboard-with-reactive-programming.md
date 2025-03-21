@@ -5,9 +5,7 @@ description: "Learn how to build a practical real-time dashboard using RxJS, Web
 tags: ["JavaScript", "Reactive Programming", "WebSockets", "RxJS", "Tutorial"]
 ---
 
-In our [previous post](/posts/reactive-programming-from-scratch-in-javascript), we explored the theory behind reactive programming. Now, let's get our hands dirty and build something genuinely useful: a real-time dashboard that connects to a WebSocket server and displays live updating data.
-
-This tutorial will be practical but challenging. Don't worry - I'll explain everything in simple terms, even when we're tackling advanced concepts.
+Hey there! Today we're going to build a real-time crypto dashboard that updates live as prices change. I'll show you how to handle WebSockets the right way using reactive programming.
 
 The complete source code for this tutorial is available in [my GitHub repository](https://github.com/ducksonmoon/rx-dashboard).
 
@@ -17,64 +15,65 @@ The complete source code for this tutorial is available in [my GitHub repository
 
 ## What We're Building
 
-Today we're creating a dashboard that displays:
+We'll create a dashboard that shows:
 
-- Live cryptocurrency price updates
-- Trading volume indicators
-- Price change alerts
-- Connection status monitoring
+- Live cryptocurrency prices from Binance WebSockets
+- Price change indicators (green for rising, red for falling)
+- Volume indicators using simple visualizations
+- Connection status monitor with auto-reconnect
+- Price alerts when crypto prices jump or drop suddenly
 
-The finished product will look something like this:
+This project brings together several reactive programming concepts in a real-world application:
 
-```
-┌─────────────────────── Crypto Dashboard ───────────────────────┐
-│                                                                │
-│  BTC: $43,215.67  (+2.4%)    Volume: IIIIIIIII                │
-│  ETH: $3,105.82   (-0.9%)    Volume: IIIII                    │
-│  SOL: $103.45     (+5.7%)    Volume: IIIIIIII                 │
-│  ADA: $1.23       (+0.3%)    Volume: III                      │
-│                                                                │
-│  [Connected ✓]                    Last update: 2 seconds ago   │
-│                                                                │
-│  Recent Alerts:                                                │
-│  • BTC price jumped 1% in last 5 minutes                       │
-│  • ETH volume spike detected                                   │
-│                                                                │
-└────────────────────────────────────────────────────────────────┘
-```
+1. Handling WebSocket connections with automatic reconnection
+2. Transforming data streams with operators
+3. Creating derived streams for alerts and UI updates
+4. Sharing a single data source among multiple components
 
-The cool part? It's all powered by reactive programming!
+Don't worry if some of this sounds complex - I'll break it down into bite-sized pieces!
 
 ## Prerequisites
 
-You'll need:
+To follow along, you should:
 
-- Basic understanding of JavaScript/HTML
-- Node.js installed
-- npm or yarn
-- Understanding of basic RxJS concepts (observables, operators)
+- Know JavaScript basics and ES6 features
+- Understand the basic concepts of reactive programming (observables, subscribers)
+- Have Node.js and npm installed
 
-## Project Setup
+If you're new to reactive programming, check out my [introduction to reactive programming](./reactive-programming-from-scratch-in-javascript) post first.
 
-Let's start with a fresh project:
+## Setting Up the Project
+
+Let's start by setting up our project structure:
+
+```
+dashboard/
+  ├── package.json
+  ├── webpack.config.js
+  ├── index.html
+  ├── src/
+  │   ├── index.js
+  │   ├── websocket-service.js
+  │   └── dashboard.js
+  └── .gitignore
+```
+
+First, create a new folder and set up our project:
 
 ```bash
-mkdir rx-dashboard
-cd rx-dashboard
+mkdir crypto-dashboard
+cd crypto-dashboard
 npm init -y
+```
+
+Now let's install the stuff we need:
+
+```bash
 npm install rxjs webpack webpack-cli webpack-dev-server html-webpack-plugin
 npm install --save-dev @babel/core @babel/preset-env babel-loader
 ```
 
-Next, create these files:
-
-1. `index.html` - Our simple dashboard layout
-2. `src/index.js` - Main entry point
-3. `src/websocket-service.js` - Our WebSocket wrapper
-4. `src/dashboard.js` - Dashboard UI logic
-5. `webpack.config.js` - Bundler configuration
-
-Let's fill them in one by one:
+Don't worry too much about all these packages - they're just the basic toolkit we need to get our app running.
 
 ### webpack.config.js
 
@@ -114,6 +113,8 @@ module.exports = {
 };
 ```
 
+Nothing fancy in our webpack config - just the basics to get our app bundled and served with hot reloading.
+
 ### index.html
 
 ```html
@@ -122,117 +123,156 @@ module.exports = {
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Rx Dashboard</title>
+    <title>Crypto Dashboard</title>
     <style>
       body {
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
           Oxygen, Ubuntu, Cantarell, sans-serif;
-        background: #f5f5f5;
-        padding: 20px;
-      }
-      .dashboard {
-        background: white;
-        border-radius: 8px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        padding: 20px;
-        max-width: 800px;
+        max-width: 1200px;
         margin: 0 auto;
+        padding: 20px;
+        background: #f5f5f5;
+        color: #333;
       }
-      .header {
+
+      h1 {
+        text-align: center;
+        margin-bottom: 30px;
+      }
+
+      .dashboard {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 20px;
+      }
+
+      .crypto-card {
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        transition: transform 0.2s;
+      }
+
+      .crypto-card:hover {
+        transform: translateY(-5px);
+      }
+
+      .price {
+        font-size: 24px;
+        font-weight: bold;
+      }
+
+      .price-change {
+        font-weight: bold;
+      }
+
+      .rising {
+        color: #4caf50;
+      }
+
+      .falling {
+        color: #f44336;
+      }
+
+      .volume-bar {
+        height: 10px;
+        margin-top: 10px;
+        background: #e0e0e0;
+        border-radius: 5px;
+        overflow: hidden;
+      }
+
+      .volume-indicator {
+        height: 100%;
+        background: #2196f3;
+        width: 0;
+        transition: width 0.5s ease-out;
+      }
+
+      .status-bar {
         display: flex;
         justify-content: space-between;
         align-items: center;
         margin-bottom: 20px;
-        padding-bottom: 10px;
-        border-bottom: 1px solid #eee;
+        background: white;
+        padding: 10px 20px;
+        border-radius: 10px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
       }
-      .crypto-list {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 15px;
-        margin-bottom: 20px;
+
+      #connection-status {
+        display: inline-block;
+        padding: 8px 16px;
+        border-radius: 20px;
+        background: #ccc;
+        cursor: pointer;
       }
-      .crypto-item {
-        background: #f9f9f9;
+
+      #connection-status.connected {
+        background: #4caf50;
+        color: white;
+      }
+
+      #connection-status.disconnected {
+        background: #f44336;
+        color: white;
+      }
+
+      #connection-status.reconnecting {
+        background: #ff9800;
+        color: white;
+      }
+
+      #alerts {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        width: 300px;
+      }
+
+      .alert {
+        background: white;
+        border-left: 5px solid #ff9800;
         padding: 15px;
-        border-radius: 4px;
-        display: flex;
-        justify-content: space-between;
+        margin-top: 10px;
+        border-radius: 5px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        animation: slideIn 0.3s ease-out;
       }
-      .price-up {
-        color: #4caf50;
-      }
-      .price-down {
-        color: #f44336;
-      }
-      .status {
-        display: flex;
-        justify-content: space-between;
-        padding: 10px 0;
-        font-size: 14px;
-      }
-      .connected {
-        color: #4caf50;
-      }
-      .disconnected {
-        color: #f44336;
-      }
-      .alerts {
-        margin-top: 20px;
-        padding-top: 10px;
-        border-top: 1px solid #eee;
-      }
-      .alert-item {
-        padding: 8px 12px;
-        background: #fff9c4;
-        border-left: 4px solid #ffc107;
-        margin-bottom: 8px;
-        font-size: 14px;
-      }
-      .volume-bar {
-        height: 8px;
-        background: #e0e0e0;
-        border-radius: 4px;
-        overflow: hidden;
-        margin-top: 5px;
-      }
-      .volume-fill {
-        height: 100%;
-        background: #2196f3;
-        width: 0%; /* Will be set dynamically */
+
+      @keyframes slideIn {
+        from {
+          transform: translateX(100%);
+          opacity: 0;
+        }
+        to {
+          transform: translateX(0);
+          opacity: 1;
+        }
       }
     </style>
   </head>
   <body>
-    <div class="dashboard">
-      <div class="header">
-        <h2>Crypto Dashboard</h2>
-        <div id="connection-status">Connecting...</div>
-      </div>
+    <h1>Crypto Dashboard</h1>
 
-      <div class="crypto-list" id="crypto-list">
-        <!-- Crypto items will be inserted here -->
-      </div>
-
-      <div class="status">
-        <div id="connection-info">Connecting to server...</div>
-        <div id="last-update">Waiting for data...</div>
-      </div>
-
-      <div class="alerts">
-        <h3>Recent Alerts</h3>
-        <div id="alerts-container">
-          <!-- Alerts will be inserted here -->
-        </div>
-      </div>
+    <div class="status-bar">
+      <div>Last updated: <span id="last-updated">--</span></div>
+      <div id="connection-status">Connecting...</div>
     </div>
+
+    <div class="dashboard" id="dashboard"></div>
+
+    <div id="alerts"></div>
   </body>
 </html>
 ```
 
+This gives us a nice, clean look for our dashboard with styles for price cards, status indicators, and alerts. I've tried to keep the CSS simple but still make it look good.
+
 ## Building the WebSocket Service
 
-Now let's create our WebSocket service. This is where reactive programming really shines:
+Now comes the fun part! Let's create our WebSocket service. This is where reactive programming really shines:
 
 ### src/websocket-service.js
 
@@ -280,13 +320,15 @@ export class WebSocketService {
 
     // Create shared, auto-reconnecting data stream
     this.data$ = this.socket$.pipe(
-      // Retry with exponential backoff
+      // Retry with exponential backoff - this is crucial for production
+      // After hours of debugging flaky connections, I found this pattern works best
       retryWhen((errors) =>
         errors.pipe(
-          delay(1000),
+          delay(1000), // Wait 1 second before trying again
           map((error, i) => {
             if (i >= 5) {
-              throw error; // Give up after 5 retries
+              // If we've retried 5 times and still failing, give up
+              throw error; // This will be caught by the catchError below
             }
             console.log(`Retrying connection (${i + 1})...`);
             this.connectionStatus$.next("reconnecting");
@@ -294,24 +336,26 @@ export class WebSocketService {
           })
         )
       ),
-      // Filter out non-array responses
+      // Filter out non-array responses - Binance sometimes sends heartbeats/other data
       filter((data) => Array.isArray(data)),
-      // Only take data until a close is signaled
+      // Only take data until someone explicitly calls close()
       takeUntil(this.closeSubject),
       // Process the incoming data
       map((data) => this.processBinanceData(data)),
-      // Add error handling
+      // Always add error handling - don't let errors bubble up and break your UI!
       catchError((error) => {
         console.error("WebSocket error:", error);
         this.connectionStatus$.next("error");
-        // Return an empty result instead of error
+        // Return empty result instead of error to keep the stream alive
         return of({ cryptos: [], timestamp: Date.now() });
       }),
-      // Use share() to multicast the data to multiple subscribers
+      // This is KEY: share() turns a cold observable hot and multicasts to all subscribers
+      // Without this, each component subscribing would create its own WebSocket!
       share()
     );
 
-    // Set up heartbeat to detect disconnects
+    // Set up heartbeat to detect disconnects that the browser missed
+    // This was a hard-won lesson from production - browsers don't always fire onclose!
     this.heartbeat$ = interval(30000).pipe(
       takeUntil(this.closeSubject),
       switchMap(() => {
@@ -376,301 +420,287 @@ export class WebSocketService {
 }
 ```
 
-There's a lot going on here, so let's break it down:
+Okay, I know that looks like a lot of code! But let me break it down for you:
 
-1. We create a WebSocket connection using RxJS's `webSocket` operator.
-2. We use `retryWhen` to implement reconnection logic with backoff.
-3. The `share()` operator ensures that multiple components subscribing to our data don't each create their own WebSocket connection.
-4. We use various reactive operators to filter, map, and handle errors.
-5. We've even added a heartbeat to detect disconnections the browser didn't catch.
+1. We're setting up a WebSocket connection to get real-time crypto prices
+2. We add some smart retry logic - if the connection drops, we try again (but not forever)
+3. We share one connection between all parts of our app (super important!)
+4. We filter and transform the data to make it easier to use
+
+Think of this service like a radio station. It broadcasts data, and different parts of our app can tune in without interfering with each other.
+
+The coolest part? The `share()` operator. Without it, each part of our app would open its own connection - like everyone bringing their own radio to the same concert!
+
+I learned the hard way that browsers sometimes don't tell you when a connection drops - like when your phone switches from WiFi to cellular. That's why we added the heartbeat - it's like regularly asking "Hey, you still there?" so we know when we need to reconnect.
 
 ## Building the Dashboard Logic
 
-Now let's create the reactive logic for our dashboard:
+Now let's create the dashboard that shows our crypto prices. This file's a bit long, but I've added lots of comments:
 
 ### src/dashboard.js
 
 ```js
-import { Subject, merge, interval } from "rxjs";
+import { fromEvent, Subject, merge } from "rxjs";
 import {
   map,
-  buffer,
-  scan,
-  filter,
   debounceTime,
-  sample,
   distinctUntilChanged,
+  throttleTime,
+  takeUntil,
+  scan,
+  buffer,
+  switchMap,
+  tap,
 } from "rxjs/operators";
 
 export class Dashboard {
   constructor(websocketService) {
     this.websocketService = websocketService;
+    this.destroy$ = new Subject();
+    this.lastPrices = new Map();
 
-    // Track manual refresh requests
-    this.refreshSubject = new Subject();
+    // DOM references
+    this.dashboardEl = document.getElementById("dashboard");
+    this.lastUpdatedEl = document.getElementById("last-updated");
+    this.connectionStatusEl = document.getElementById("connection-status");
+    this.alertsEl = document.getElementById("alerts");
 
-    // Set up all the observables
-    this.setupObservables();
-
-    // Set up DOM elements
-    this.cryptoListElem = document.getElementById("crypto-list");
-    this.connectionStatusElem = document.getElementById("connection-status");
-    this.connectionInfoElem = document.getElementById("connection-info");
-    this.lastUpdateElem = document.getElementById("last-update");
-    this.alertsContainerElem = document.getElementById("alerts-container");
-
-    // Initialize the dashboard
     this.initialize();
   }
 
-  setupObservables() {
-    // Get the base data stream
-    this.data$ = this.websocketService.getData();
+  initialize() {
+    // Observe connection status changes
+    this.websocketService
+      .getConnectionStatus()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((status) => {
+        this.updateConnectionStatus(status);
+      });
 
-    // Transform data for UI updates (with throttling)
-    this.uiData$ = this.data$.pipe(
-      sample(interval(1000)) // Only update UI max once per second to prevent flicker
-    );
+    // Main data stream
+    const data$ = this.websocketService.getData();
 
-    // Create price alert observable using a buffer strategy
-    this.priceAlerts$ = this.data$.pipe(
-      // First, create a stream of all crypto updates
-      map((data) => data.cryptos),
-      // Explode the array (turn one array into multiple emissions, one for each crypto)
-      map((cryptos) => cryptos.flatMap((crypto) => ({ ...crypto }))),
-      // Buffer for 5 minutes for each symbol separately
-      buffer(interval(5 * 60 * 1000)), // 5 minutes buffer
-      // Only continue if buffer has items
-      filter((buffer) => buffer.length > 0),
-      // Group buffered items by symbol
-      map((buffer) => {
-        // Group by symbol
-        const bySymbol = buffer.reduce((acc, item) => {
-          if (!acc[item.symbol]) acc[item.symbol] = [];
-          acc[item.symbol].push(item);
-          return acc;
-        }, {});
-
-        // For each symbol, check if there's a significant price change
-        return Object.entries(bySymbol)
-          .map(([symbol, items]) => {
-            if (items.length < 2) return null;
-
-            const first = items[0].price;
-            const last = items[items.length - 1].price;
-            const pctChange = ((last - first) / first) * 100;
-
-            // Only alert if change is significant (more than 1% in 5 min)
-            if (Math.abs(pctChange) >= 1) {
-              return {
-                symbol,
-                pctChange: pctChange.toFixed(2),
-                isUp: pctChange > 0,
-                timestamp: Date.now(),
-              };
-            }
-            return null;
-          })
-          .filter((item) => item !== null);
-      }),
-      // Flatten the results
-      map((alerts) => alerts.flat())
-    );
-
-    // Create volume alert observable
-    this.volumeAlerts$ = this.data$.pipe(
-      // Debounce so we don't process every single update
-      debounceTime(10000), // Check every 10 seconds
-      // Track volume state over time using scan
-      scan(
-        (acc, data) => {
-          // Initialize or update with the latest data
-          if (!acc.prev) {
-            return {
-              prev: data.cryptos,
-              alerts: [],
-            };
-          }
-
-          // Compare current volumes with previous
-          const alerts = data.cryptos
-            .map((current) => {
-              const prev = acc.prev.find((p) => p.symbol === current.symbol);
-              if (!prev) return null;
-
-              // Check for significant volume increase (20%+)
-              const volumeIncrease =
-                (current.volume - prev.volume) / prev.volume;
-              if (volumeIncrease > 0.2) {
-                // 20% threshold
-                return {
-                  symbol: current.symbol,
-                  volumeIncrease: (volumeIncrease * 100).toFixed(0),
-                  timestamp: Date.now(),
-                };
-              }
-              return null;
-            })
-            .filter((alert) => alert !== null);
-
-          return {
-            prev: data.cryptos,
-            alerts,
-          };
-        },
-        { prev: null, alerts: [] }
-      ),
-      // Only emit when there are new alerts
-      filter((result) => result.alerts.length > 0),
-      map((result) => result.alerts)
-    );
-
-    // Connection status with simpler display text
-    this.connectionStatus$ = this.websocketService.getConnectionStatus().pipe(
-      map((status) => {
-        switch (status) {
-          case "connected":
-            return { text: "Connected", class: "connected" };
-          case "disconnected":
-            return { text: "Disconnected", class: "disconnected" };
-          case "connecting":
-            return { text: "Connecting...", class: "disconnected" };
-          case "reconnecting":
-            return { text: "Reconnecting...", class: "disconnected" };
-          case "error":
-            return { text: "Connection Error", class: "disconnected" };
-          default:
-            return { text: "Unknown", class: "" };
-        }
-      })
-    );
-
-    // Last update time
-    this.lastUpdate$ = this.data$.pipe(
-      map((data) => {
-        const time = new Date(data.timestamp);
-        return time.toLocaleTimeString();
-      })
-    );
-
-    // Combine all alerts into a single stream for the UI
-    this.allAlerts$ = merge(
-      this.priceAlerts$.pipe(
-        map((alerts) =>
-          alerts.map((a) => ({
-            text: `${a.symbol} price ${
-              a.isUp ? "jumped" : "dropped"
-            } ${Math.abs(a.pctChange)}% in last 5 minutes`,
-            timestamp: a.timestamp,
-            type: "price",
-          }))
-        )
-      ),
-      this.volumeAlerts$.pipe(
-        map((alerts) =>
-          alerts.map((a) => ({
-            text: `${a.symbol} volume spike detected: +${a.volumeIncrease}%`,
-            timestamp: a.timestamp,
-            type: "volume",
-          }))
-        )
+    // Update dashboard with latest prices
+    data$
+      .pipe(
+        takeUntil(this.destroy$)
+        // This is where reactive programming really helps - we can derive multiple streams
+        // from a single data source for different purposes
       )
-    ).pipe(
-      scan((allAlerts, newAlerts) => {
-        // Add new alerts and keep the list at max 5 items
-        return [...newAlerts, ...allAlerts].slice(0, 5);
-      }, [])
-    );
+      .subscribe((data) => {
+        this.updateDashboard(data);
+      });
+
+    // Create a separate stream just for price alerts
+    // This shows the power of creating derived streams with different operators
+    data$
+      .pipe(
+        takeUntil(this.destroy$),
+        // Use scan to keep track of previous values and detect big changes
+        // Think of scan like a snowball rolling downhill, gathering data as it goes
+        scan(
+          (acc, data) => {
+            const alerts = [];
+
+            data.cryptos.forEach((crypto) => {
+              const prev = acc.prices.get(crypto.symbol);
+              if (prev) {
+                // Calculate percent change since last update
+                const pctChange = ((crypto.price - prev) / prev) * 100;
+
+                // Alert on significant changes (more than 0.5% in a single update)
+                if (Math.abs(pctChange) > 0.5) {
+                  alerts.push({
+                    symbol: crypto.symbol,
+                    price: crypto.price,
+                    change: pctChange,
+                    isPositive: pctChange > 0,
+                  });
+                }
+              }
+
+              // Update our tracking map with latest price
+              acc.prices.set(crypto.symbol, crypto.price);
+            });
+
+            return {
+              prices: acc.prices,
+              alerts,
+            };
+          },
+          { prices: new Map(), alerts: [] }
+        ),
+        // Only proceed when there are alerts
+        map((result) => result.alerts),
+        filter((alerts) => alerts.length > 0)
+      )
+      .subscribe((alerts) => {
+        this.showAlerts(alerts);
+      });
+
+    // Create a separate stream for volume analysis
+    data$
+      .pipe(
+        takeUntil(this.destroy$),
+        map((data) => {
+          // Calculate total volume across all cryptos
+          const totalVolume = data.cryptos.reduce(
+            (sum, crypto) => sum + crypto.volume,
+            0
+          );
+          return {
+            totalVolume,
+            cryptos: data.cryptos,
+          };
+        })
+        // We could do sophisticated volume analysis here
+      )
+      .subscribe((volumeData) => {
+        // For now, we're just using this for our UI volume bars
+        // but in a real app, you might generate volume-based trading signals
+      });
   }
 
-  initialize() {
-    // Subscribe to UI updates
-    this.uiData$.subscribe((data) => this.updateCryptoList(data));
+  updateDashboard(data) {
+    // Update "last updated" timestamp
+    const date = new Date(data.timestamp);
+    this.lastUpdatedEl.textContent = date.toLocaleTimeString();
 
-    // Subscribe to connection status
-    this.connectionStatus$.subscribe((status) => {
-      this.connectionStatusElem.textContent = status.text;
-      this.connectionStatusElem.className = status.class;
-      this.connectionInfoElem.textContent =
-        status.class === "connected"
-          ? "Live data streaming"
-          : "Waiting for connection...";
-    });
+    // Update or create cards for each cryptocurrency
+    data.cryptos.forEach((crypto) => {
+      let cardEl = document.getElementById(`crypto-${crypto.symbol}`);
 
-    // Subscribe to last update time
-    this.lastUpdate$.subscribe((time) => {
-      this.lastUpdateElem.textContent = `Last update: ${time}`;
-    });
+      // If this crypto doesn't have a card yet, create one
+      if (!cardEl) {
+        cardEl = document.createElement("div");
+        cardEl.id = `crypto-${crypto.symbol}`;
+        cardEl.className = "crypto-card";
+        cardEl.innerHTML = `
+          <h2>${crypto.symbol}</h2>
+          <div class="price">$${crypto.price.toFixed(2)}</div>
+          <div class="price-change ${
+            crypto.priceChange >= 0 ? "rising" : "falling"
+          }">
+            ${crypto.priceChange >= 0 ? "▲" : "▼"} ${Math.abs(
+          crypto.priceChange
+        ).toFixed(2)}%
+          </div>
+          <div class="volume">
+            Volume: ${this.formatVolume(crypto.volume)}
+            <div class="volume-bar">
+              <div class="volume-indicator" style="width: ${
+                crypto.volumeScore * 10
+              }%"></div>
+            </div>
+          </div>
+        `;
+        this.dashboardEl.appendChild(cardEl);
+      } else {
+        // Update existing card
+        const priceEl = cardEl.querySelector(".price");
+        const priceChangeEl = cardEl.querySelector(".price-change");
+        const volumeBarEl = cardEl.querySelector(".volume-indicator");
 
-    // Subscribe to alerts
-    this.allAlerts$.subscribe((alerts) => {
-      this.alertsContainerElem.innerHTML = "";
+        // Check if price changed to add flash effect
+        const prevPrice = this.lastPrices.get(crypto.symbol) || crypto.price;
+        const priceChanged = prevPrice !== crypto.price;
 
-      if (alerts.length === 0) {
-        this.alertsContainerElem.innerHTML = "<p>No alerts yet</p>";
-        return;
+        if (priceChanged) {
+          // Add flash effect class based on price direction
+          const flashClass = crypto.price > prevPrice ? "rising" : "falling";
+          priceEl.classList.add(flashClass);
+
+          // Remove flash effect after animation completes
+          setTimeout(() => priceEl.classList.remove(flashClass), 1000);
+        }
+
+        // Update values
+        priceEl.textContent = `$${crypto.price.toFixed(2)}`;
+        priceChangeEl.textContent = `${
+          crypto.priceChange >= 0 ? "▲" : "▼"
+        } ${Math.abs(crypto.priceChange).toFixed(2)}%`;
+        priceChangeEl.className = `price-change ${
+          crypto.priceChange >= 0 ? "rising" : "falling"
+        }`;
+        volumeBarEl.style.width = `${crypto.volumeScore * 10}%`;
       }
 
-      alerts.forEach((alert) => {
-        const alertElem = document.createElement("div");
-        alertElem.className = `alert-item alert-${alert.type}`;
-        alertElem.textContent = alert.text;
-        this.alertsContainerElem.appendChild(alertElem);
-      });
+      // Store current price for next comparison
+      this.lastPrices.set(crypto.symbol, crypto.price);
     });
   }
 
-  updateCryptoList(data) {
-    this.cryptoListElem.innerHTML = "";
+  updateConnectionStatus(status) {
+    this.connectionStatusEl.className = status;
 
-    data.cryptos.forEach((crypto) => {
-      const isUp = crypto.priceChange >= 0;
-      const priceChangeClass = isUp ? "price-up" : "price-down";
+    switch (status) {
+      case "connected":
+        this.connectionStatusEl.textContent = "Connected";
+        break;
+      case "disconnected":
+        this.connectionStatusEl.textContent =
+          "Disconnected - Click to reconnect";
+        break;
+      case "reconnecting":
+        this.connectionStatusEl.textContent = "Reconnecting...";
+        break;
+      case "connecting":
+        this.connectionStatusEl.textContent = "Connecting...";
+        break;
+      default:
+        this.connectionStatusEl.textContent =
+          "Connection Error - Click to retry";
+        break;
+    }
+  }
 
-      const cryptoItemElem = document.createElement("div");
-      cryptoItemElem.className = "crypto-item";
-
-      cryptoItemElem.innerHTML = `
-        <div class="crypto-price">
-          <strong>${crypto.symbol}:</strong> 
-          $${crypto.price.toFixed(2)}
-          <span class="${priceChangeClass}">
-            (${isUp ? "+" : ""}${crypto.priceChange.toFixed(2)}%)
-          </span>
-        </div>
-        <div class="crypto-volume">
-          Volume: 
-          <div class="volume-bar">
-            <div class="volume-fill" style="width: ${
-              crypto.volumeScore * 10
-            }%"></div>
-          </div>
-        </div>
+  showAlerts(alerts) {
+    alerts.forEach((alert) => {
+      const alertEl = document.createElement("div");
+      alertEl.className = "alert";
+      alertEl.innerHTML = `
+        <strong>${alert.symbol}</strong> ${alert.isPositive ? "up" : "down"} 
+        ${Math.abs(alert.change).toFixed(2)}% to $${alert.price.toFixed(2)}
       `;
 
-      this.cryptoListElem.appendChild(cryptoItemElem);
+      this.alertsEl.appendChild(alertEl);
+
+      // Remove alert after 5 seconds
+      setTimeout(() => {
+        if (alertEl.parentNode === this.alertsEl) {
+          alertEl.style.opacity = "0";
+          setTimeout(() => this.alertsEl.removeChild(alertEl), 300);
+        }
+      }, 5000);
     });
   }
 
-  // Method to manually trigger a refresh
-  refresh() {
-    this.refreshSubject.next();
+  formatVolume(volume) {
+    if (volume >= 1000000) {
+      return `${(volume / 1000000).toFixed(2)}M`;
+    } else if (volume >= 1000) {
+      return `${(volume / 1000).toFixed(2)}K`;
+    }
+    return volume.toFixed(2);
   }
 
-  // Clean up
   destroy() {
-    this.websocketService.close();
+    // Clean up all subscriptions
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }
 ```
 
-There's a lot of reactive goodness here:
+The dashboard might seem complex, but it's actually doing something really cool: creating three separate views from the same data stream!
 
-1. We create multiple observables from our base data stream, each extracting specific information.
-2. We use `buffer` to collect 5 minutes of price data for detecting price changes.
-3. `scan` helps us maintain state between emissions for volume comparisons.
-4. `merge` combines alerts from different sources.
-5. We've implemented throttling with `sample` and `debounceTime` to ensure a smooth UI.
+1. The main UI update stream shows the current prices
+2. The alert stream watches for sudden price jumps
+3. The volume stream tracks trading volume (which we could use for more analysis)
+
+This is like having three different TV shows using footage from the same camera. Each show presents the same raw material in a different way.
+
+My favorite trick here is using `scan()` to compare current prices with previous ones. Think of it like a person with a good memory - they can tell you not just the current price but how much it changed from before.
 
 ## Tying It All Together
 
@@ -705,6 +735,15 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 ```
 
+This file is super simple. It just:
+
+1. Sets up our WebSocket service
+2. Creates our dashboard
+3. Adds a click handler to manually reconnect
+4. Makes sure we clean up when the page unloads
+
+It's like the director of a play - making sure all the actors (our components) are in the right place and know their lines.
+
 ## Running the Dashboard
 
 Add these scripts to your `package.json`:
@@ -724,98 +763,178 @@ npm start
 
 Visit `http://localhost:8080` and you'll see your reactive dashboard in action!
 
+## Troubleshooting Common Issues
+
+Every developer I know has hit these reactive programming gotchas at some point:
+
+### 1. "My observable isn't doing anything!"
+
+This is almost always because you created the observable but didn't subscribe to it. Remember: **observables are lazy** - they don't do anything until you subscribe.
+
+```js
+// This won't work - nothing happens!
+webSocket("wss://example.com").pipe(map((data) => processData(data)));
+
+// This works - subscription triggers execution
+webSocket("wss://example.com")
+  .pipe(map((data) => processData(data)))
+  .subscribe((result) => console.log(result));
+```
+
+It's like setting up a camera but forgetting to press record!
+
+### 2. "I'm getting multiple WebSocket connections!"
+
+If you see duplicate data or multiple connection messages, you probably forgot to use `share()`. Without it, each subscriber creates its own execution context.
+
+This is like everyone in your family streaming the same Netflix show on different devices instead of watching it together on the TV.
+
+### 3. "My WebSocket keeps disconnecting!"
+
+Network connections are flaky. Always implement:
+
+- Reconnection logic with `retryWhen`
+- Heartbeat detection for "zombie" connections
+- Status indicators in the UI so users know what's happening
+
+Think of this like a long-distance relationship - you need regular check-ins and a backup plan for when calls drop!
+
+### 4. "My UI is lagging with high-frequency data!"
+
+Too many updates can kill performance. Use throttling operators:
+
+- `debounceTime` - Wait for a pause in events
+- `sample` - Take latest value at regular intervals
+- `throttleTime` - Limit to one event per time window
+
+This is like checking your email once an hour instead of every time a new message arrives.
+
+### 5. "Memory usage keeps growing!"
+
+The classic memory leak. Usually caused by:
+
+- Not unsubscribing from observables when components are destroyed
+- Creating new subscriptions on every render/update
+- Keeping references to large datasets
+
+It's like leaving the water running when you leave the house!
+
+## Real-World Lessons
+
+After building several reactive dashboards in production, here's what I've learned:
+
+1. **Start simple, add complexity gradually** - Begin with a basic stream and add operators one at a time, testing as you go.
+
+2. **Centralize your socket handling** - Create one service that manages connections and shares the data stream.
+
+3. **Draw your streams before coding** - I often sketch out my observable pipelines on paper first.
+
+4. **Make error handling a priority** - In a streaming app, errors are part of normal operation, not exceptional cases.
+
+5. **Use the Chrome DevTools Memory panel** - It's invaluable for tracking down RxJS-related memory leaks.
+
+6. **Consider device capabilities** - What works smoothly on your development machine might struggle on low-end devices.
+
+7. **Add visibility into your streams** - For debugging, I temporarily add `.pipe(tap(x => console.log('Stream value:', x)))` to see what's flowing through.
+
 ## How It Works Under the Hood
 
-Let's review what's happening behind the scenes:
+So what's going on behind the scenes that makes this approach so powerful?
 
-1. **WebSocket Connection** - We create a single WebSocket connection using RxJS's `webSocket` that multicasts data to all subscribers
-2. **Data Transformation** - Multiple observables transform the data in different ways:
-   - Price comparisons over time
-   - Volume spike detection
-   - Connection status monitoring
-3. **UI Synchronization** - Observables update the UI elements when data changes
-4. **Error Handling** - Built-in reconnection and error handling keeps the dashboard working
-5. **Resource Management** - Proper subscription cleanup prevents memory leaks
+### Hot vs Cold Observables
 
-The beauty of this approach is how it handles complexity. Consider the price alerts: we're simultaneously:
+The WebSocket observable created by `webSocket()` is a **hot** observable - it emits values whether something is subscribed or not. This is perfect for real-time data feeds where we don't want to miss events.
 
-- Collecting 5 minutes of data
-- Grouping by symbol
-- Calculating percentage changes
-- Filtering for significant changes
-- All while handling errors and connection issues
+Think of hot observables like a live concert - the band plays whether you're in the audience or not. Cold observables are more like a Netflix show - it starts playing when you press play.
 
-Doing this with traditional callbacks or promises would be much more complicated.
+When we apply `share()`, we're ensuring that we have exactly one WebSocket connection that multicasts its data to all subscribers. Without `share()`, each subscriber would create its own connection!
 
-## Reactive Programming Patterns Demonstrated
+### Derived Streams with Pure Functions
 
-This project demonstrates several reactive programming patterns:
+We're creating several derived streams from our base data stream:
 
-1. **Hot Observables** - Our WebSocket connection is a hot observable (emits values regardless of subscribers)
-2. **Shared Subscription** - Using `share()` to avoid duplicate WebSocket connections
-3. **Declarative Data Flow** - We describe the data flow rather than imperatively handling each event
-4. **Operator Composition** - Chaining operators to create complex behaviors from simple building blocks
-5. **Backpressure Handling** - Using `debounceTime` and `sample` to prevent UI flicker with high-frequency updates
-6. **Error Recovery** - Using `retryWhen` and `catchError` for resilient connections
+- Main UI update stream
+- Price alert stream
+- Volume analysis stream
+
+Each stream applies its own operators to the same base data. This is way cleaner than having multiple event handlers modifying shared state.
+
+It's like cooking - you start with the same ingredients (raw data), but make different dishes (UI updates, alerts) without contaminating the original ingredients.
+
+### Declarative Error Handling
+
+Instead of try/catch blocks scattered throughout our code, we handle errors once at the observable level with `catchError`. This ensures our app stays responsive even when things go wrong.
+
+It's like having one person assigned to handle emergencies instead of everyone panicking when something breaks.
+
+### Memory Management
+
+We're using the `takeUntil(this.destroy$)` pattern to ensure all our subscriptions get cleaned up when the dashboard is destroyed. This prevents memory leaks - a common problem with event-based systems.
+
+Think of it like having one master switch that turns off all the lights when you leave the house.
 
 ## Extending the Dashboard
 
-Want to take this further? Here are some ideas:
+Here are some cool ways you could take this project further:
 
-1. Add price alerts for user-defined thresholds
-2. Implement candlestick charts with D3.js
-3. Save alerts to localStorage
-4. Add more crypto pairs
-5. Create a watchlist feature
+1. **Add user-defined price alerts** - Let users set price thresholds that trigger notifications
+2. **Implement trading signals** - Use technical indicators to suggest buy/sell opportunities
+3. **Add candlestick charts** - Use a library like Highcharts to visualize price movements
+4. **Create multiple timeframes** - Add options to view different time intervals
+5. **Add a news feed** - Integrate cryptocurrency news using another API
+
+## Key Takeaways
+
+As you work with reactive programming for UI apps like this dashboard, remember:
+
+1. **Think in streams** - Data flows from sources through transformations to UI updates
+2. **Share connections** - Use `share()` to prevent duplicate WebSockets
+3. **Clean up resources** - Always unsubscribe or use `takeUntil`
+4. **Handle errors gracefully** - Network issues are normal, not exceptional
+5. **Derive don't mutate** - Create new streams instead of modifying shared state
 
 ## References & Resources
+
+### Official Documentation
+
+- [RxJS WebSocket API](https://rxjs.dev/api/webSocket/webSocket) - Official documentation for the RxJS WebSocket functionality
+- [MDN WebSocket documentation](https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API) - Comprehensive guide to browser WebSockets
+- [Binance WebSocket API](https://binance-docs.github.io/apidocs/spot/en/#websocket-market-streams) - Documentation for the WebSocket API we're using
+
+### Tutorials & Articles
+
+- [RxJS and WebSockets: A Perfect Match](https://medium.com/@luukgruijs/understanding-rxjs-subjects-339428a1815b) - Deeper dive into using RxJS with WebSockets
+- [Building Reactive UIs](https://www.learnrxjs.io/learn-rxjs/recipes/reactive-uis) - Patterns for building reactive user interfaces
+
+### Libraries & Tools
+
+- [RxJS](https://rxjs.dev/) - The reactive extensions library for JavaScript
+- [D3.js](https://d3js.org/) - For more advanced visualizations
+- [HighCharts](https://www.highcharts.com/) - For financial charting
+
+### Example Projects
+
+- [RxJS Stock Ticker](https://github.com/NicoJuicy/angular-realtime-chart) - Similar project built with Angular
+- [Reactive Trader Cloud](https://github.com/AdaptiveConsulting/ReactiveTraderCloud) - Advanced trading platform using reactive principles
+
+### Videos
+
+- [Building Reactive Applications](https://www.youtube.com/watch?v=q--T1LqFJZo) - Conference talk on reactive architecture
+- [WebSockets with RxJS](https://www.youtube.com/watch?v=WFas9JqBo8I) - Tutorial on WebSocket handling with RxJS
 
 ### Source Code
 
 - [Complete Dashboard Project](https://github.com/ducksonmoon/rx-dashboard) - The full source code for this tutorial on GitHub
 
-### Official Documentation
-
-- [RxJS WebSocket Documentation](https://rxjs.dev/api/webSocket/webSocket) - Official documentation for the RxJS WebSocket API
-- [MDN WebSocket API](https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API) - Mozilla's reference for the native WebSocket API
-- [Binance WebSocket API](https://github.com/binance/binance-spot-api-docs/blob/master/web-socket-streams.md) - Reference for the Binance WebSocket API used in this example
-
-### Tutorials & Articles
-
-- [RxJS + WebSockets: A Perfect Match](https://medium.com/@luukgruijs/understanding-rxjs-subjects-339428a1815b) - Article explaining why RxJS and WebSockets work so well together
-- [Building Reactive UIs](https://www.learnrxjs.io/learn-rxjs/recipes/http-polling) - Strategies for building responsive, reactive user interfaces
-- [WebSockets vs. HTTP](https://blog.pusher.com/websockets-http2/) - Comparison of WebSockets and HTTP for real-time applications
-
-### Libraries & Tools
-
-- [D3.js](https://d3js.org/) - Data visualization library mentioned in the extension ideas
-- [TradingView Charts](https://www.tradingview.com/widget/) - Alternative for adding financial charts
-- [reconnecting-websocket](https://github.com/joewalnes/reconnecting-websocket) - A simpler alternative if you don't need RxJS's power
-
-### Example Projects
-
-- [RxJS WebSocket Dashboard Example](https://github.com/btroncone/learn-rxjs/tree/master/recipes-web/websocket-game) - Another example of RxJS with WebSockets
-- [Reactive Trader Cloud](https://github.com/AdaptiveConsulting/ReactiveTraderCloud) - Open-source real-time trading platform using reactive principles
-- [RxJS WebSocket Chat](https://github.com/mrpatiwi/routed-react) - Simple chat application using RxJS and WebSockets
-
-### Videos
-
-- [Managing WebSockets with RxJS](https://www.youtube.com/watch?v=3LKMwkuK0ZE) - Conference talk on reactive WebSocket management
-- [Reactive Programming in Practice](https://www.youtube.com/watch?v=uODxUJ5Jwis) - Talk by Ben Lesh (RxJS lead) about real-world reactive applications
-- [Creating Dashboards with RxJS](https://www.youtube.com/watch?v=6KtDcpamT8M) - Tutorial on building interactive dashboards
-
 ## Final Thoughts
 
-This project shows how reactive programming can handle complex, real-time UI updates with elegance. The code stays organized and maintainable even as features grow.
+Building reactive apps takes a different mindset, but once you get the hang of it, you'll find it's a much cleaner way to handle complex, real-time UIs. The dashboard we've built is just scratching the surface of what's possible.
 
-Most importantly, WebSockets and reactive programming are a natural fit. The continuous stream of data from a WebSocket maps perfectly to observables, and RxJS operators give us powerful tools to transform, filter, and combine that data.
+The real power of reactive programming shines in applications like this one, where:
 
-Remember these key takeaways:
+1. Data arrives continuously and unpredictably
+2. Multiple parts of the UI need to respond to the same events
+3. Error handling and reconnection logic are crucial
+4. You need to make multiple views from the same base data
 
-1. Use `share()` when multiple components need the same data source
-2. Implement reconnection logic with `retryWhen`
-3. Control update frequency with `debounceTime` and `sample`
-4. Maintain state between emissions with `scan`
-5. Handle errors gracefully with `catchError`
-
-Happy coding with reactive streams!
+I hope this tutorial has given you a practical example of how reactive programming can solve real-world problems. Happy coding!
