@@ -35,46 +35,73 @@ export default async function BlogListPage() {
   const featuredPosts = posts.slice(0, 2);
   
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#0d1117] to-[#161b22]">
+    <div className="min-h-screen bg-gradient-to-b from-[#0d1117] to-[#131a22]">
       {/* Hero Section */}
-      <div className="w-full bg-[#0d1117] border-b border-gray-800">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8 py-12 md:py-20 lg:py-24">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-3 md:mb-4">Blog</h1>
-          <p className="text-base sm:text-lg md:text-xl text-gray-300 max-w-2xl">
-            Thoughts, ideas, and tutorials on web development, design, and more.
-          </p>
+      <div className="relative w-full border-b border-gray-800 overflow-hidden">
+        {/* Abstract background pattern */}
+        <div className="absolute inset-0 opacity-20">
+          <div className="absolute top-10 left-1/4 w-72 h-72 bg-blue-500 rounded-full filter blur-[120px]"></div>
+          <div className="absolute bottom-10 right-1/3 w-80 h-80 bg-indigo-600 rounded-full filter blur-[150px]"></div>
+        </div>
+        
+        <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24">
+          <div className="max-w-3xl">
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
+              Blog & Articles
+            </h1>
+            <p className="text-lg md:text-xl text-gray-300 max-w-2xl leading-relaxed">
+              Insights, tutorials, and thoughts on web development, design, and technology. Explore articles crafted to help you grow as a developer.
+            </p>
+          </div>
         </div>
       </div>
       
       {/* Featured Posts */}
       {featuredPosts.length > 0 && (
-        <div className="w-full border-b border-gray-800 py-8 sm:py-10 md:py-12">
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8">
-            <h2 className="text-xl sm:text-2xl font-bold text-white mb-4 sm:mb-6">Featured Posts</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+        <div className="w-full border-b border-gray-800 py-12 sm:py-16">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex items-center justify-between mb-8">
+              <h2 className="text-2xl font-bold text-white">Featured Articles</h2>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
               {featuredPosts.map((post) => (
                 <Link 
                   href={`/blog/post/${post.slug}`} 
                   key={post.slug}
                   className="group block h-full"
                 >
-                  <div className="h-full p-4 sm:p-6 bg-gradient-to-br from-blue-900/40 to-gray-900 rounded-lg border border-blue-800/50 shadow-md hover:shadow-blue-900/10 hover:border-blue-700/70 transition-all duration-300">
-                    <div className="flex gap-2 flex-wrap mb-2 md:mb-3">
-                      {post.tags && post.tags.map((tag) => (
-                        <span key={tag} className="text-xs px-2 py-1 bg-blue-900/50 text-blue-300 rounded-full">
-                          #{tag}
+                  <article className="h-full p-6 md:p-8 bg-gradient-to-br from-[#1a2233] to-[#16202d] rounded-xl border border-gray-800 shadow-lg hover:shadow-blue-900/10 hover:border-blue-800/30 transition-all duration-300 relative overflow-hidden">
+                    {/* Hover effect */}
+                    <div className="absolute inset-0 bg-blue-600/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    
+                    <div className="relative z-10">
+                      <div className="flex gap-2 flex-wrap mb-4">
+                        {post.tags && post.tags.map((tag) => (
+                          <span key={tag} className="text-xs px-2.5 py-1 bg-blue-900/30 text-blue-300 rounded-full font-medium">
+                            #{tag}
+                          </span>
+                        ))}
+                      </div>
+                      
+                      <h3 className="text-xl md:text-2xl font-bold mb-3 text-white group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-blue-400 group-hover:to-blue-300 transition-all duration-300">
+                        {post.title}
+                      </h3>
+                      
+                      <p className="text-sm md:text-base text-gray-300 mb-5 line-clamp-2 leading-relaxed">{post.description}</p>
+                      
+                      <div className="flex justify-between items-center pt-4 border-t border-gray-800/50 mt-auto">
+                        <span className="text-sm text-gray-400">{post.date}</span>
+                        <span className="text-sm text-blue-400 group-hover:text-blue-300 transition-colors flex items-center">
+                          Read article
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="ml-1 group-hover:translate-x-1 transition-transform duration-200">
+                            <path d="M5 12h14"></path>
+                            <path d="m12 5 7 7-7 7"></path>
+                          </svg>
                         </span>
-                      ))}
+                      </div>
                     </div>
-                    <h3 className="text-lg sm:text-xl md:text-2xl font-bold mb-2 md:mb-3 text-white group-hover:text-blue-300 transition-colors">
-                      {post.title}
-                    </h3>
-                    <p className="text-xs sm:text-sm text-gray-300 mb-3 md:mb-4 line-clamp-2">{post.description}</p>
-                    <div className="flex justify-between items-center mt-2 md:mt-4">
-                      <span className="text-xs text-gray-400">{post.date}</span>
-                      <span className="text-xs sm:text-sm text-blue-400 group-hover:text-blue-300 transition-colors">Read more →</span>
-                    </div>
-                  </div>
+                  </article>
                 </Link>
               ))}
             </div>
@@ -83,7 +110,7 @@ export default async function BlogListPage() {
       )}
       
       {/* Content Section */}
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8 py-8 sm:py-10 md:py-12">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
         <BlogList posts={posts} />
       </div>
     </div>

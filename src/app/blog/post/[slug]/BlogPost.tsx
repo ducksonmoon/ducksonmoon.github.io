@@ -30,33 +30,47 @@ export default function BlogPost({ post }: { post: Post }) {
   const [formattedDate, setFormattedDate] = useState<string>("");
   const [readingTime, setReadingTime] = useState<string>("");
   const [showScrollButton, setShowScrollButton] = useState(false);
+  const [darkMode, setDarkMode] = useState(true);
+  
+  const progressBarRef = React.useRef<HTMLDivElement>(null);
   
   useEffect(() => {
     setFormattedDate(format(new Date(post.date), "MMMM dd, yyyy"));
     
-    // Calculate reading time (average reading speed: 200 words per minute)
     const wordCount = post.content?.split(/\s+/).length || 0;
     const readingTimeMinutes = Math.ceil(wordCount / 200);
     setReadingTime(`${readingTimeMinutes} min read`);
     
-    // Add scroll event listener to show/hide the scroll button
     const handleScroll = () => {
-      if (window.scrollY > 300) {
-        setShowScrollButton(true);
-      } else {
-        setShowScrollButton(false);
+      if (window.scrollY > 300 !== showScrollButton) {
+        setShowScrollButton(window.scrollY > 300);
+      }
+      
+      if (progressBarRef.current) {
+        const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
+        if (scrollHeight > 0) {
+          const progress = (window.scrollY / scrollHeight);
+          progressBarRef.current.style.transform = `scaleX(${progress})`;
+        }
       }
     };
     
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    
+    handleScroll();
+    
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [post.date, post.content]);
+  }, [post.date, post.content, showScrollButton]); // Added showScrollButton as dependency
 
   const scrollToTop = () => {
     window.scrollTo({
       top: 0,
       behavior: 'smooth'
     });
+  };
+
+  const toggleDarkMode = () => {
+    setDarkMode(!darkMode);
   };
 
   const tocComponent = <TableOfContents content={post.content || ""} />;
@@ -85,37 +99,69 @@ export default function BlogPost({ post }: { post: Post }) {
   });
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#0d1117] to-[#121820] text-white px-4 md:px-8 lg:px-16 py-12">
-      <div className="max-w-4xl mx-auto">
-        <Link
-          href="/blog"
-          className="inline-flex items-center gap-2 text-primary hover:text-primary/80 font-medium transition-colors duration-200 mb-8 group"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="group-hover:-translate-x-1 transition-transform duration-200">
-            <path d="m15 18-6-6 6-6"/>
-          </svg>
-          Back to Blog
-        </Link>
+    <div className={`min-h-screen transition-colors duration-300 ${darkMode ? 'bg-gradient-to-b from-[#0d1117] to-[#121820]' : 'bg-gradient-to-b from-[#f8fafc] to-[#edf2f7]'}`}>
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+        <div className="flex justify-between items-center mb-8">
+          <Link
+            href="/blog"
+            className="inline-flex items-center gap-2 text-primary hover:text-primary/80 font-medium transition-colors duration-200 group"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="group-hover:-translate-x-1 transition-transform duration-200">
+              <path d="m15 18-6-6 6-6"/>
+            </svg>
+            Back to Blog
+          </Link>
+          
+          <button 
+            onClick={toggleDarkMode} 
+            className={`p-2 rounded-full ${darkMode ? 'bg-gray-800 text-gray-200' : 'bg-gray-200 text-gray-800'} transition-colors duration-200`}
+            aria-label={darkMode ? "Switch to light mode" : "Switch to dark mode"}
+          >
+            {darkMode ? (
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="5"></circle>
+                <line x1="12" y1="1" x2="12" y2="3"></line>
+                <line x1="12" y1="21" x2="12" y2="23"></line>
+                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                <line x1="1" y1="12" x2="3" y2="12"></line>
+                <line x1="21" y1="12" x2="23" y2="12"></line>
+                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+              </svg>
+            ) : (
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+              </svg>
+            )}
+          </button>
+        </div>
         
-        <article className="bg-[#121920] rounded-xl shadow-xl p-6 md:p-10 mb-12">
+        <article className={`${darkMode ? 'bg-[#121920] shadow-lg' : 'bg-white shadow-md'} rounded-xl p-6 md:p-10 mb-12 transition-colors duration-300`}>
           {/* Header */}
-          <header className="mb-10">
-            <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-300">{post.title}</h1>
+          <header className="mb-10 max-w-3xl mx-auto">
+            <h1 className={`text-3xl md:text-4xl lg:text-5xl font-extrabold mb-6 ${darkMode ? 'bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-300' : 'text-gray-800'}`}>
+              {post.title}
+            </h1>
             
-            <div className="flex flex-wrap items-center gap-2 md:gap-4 text-sm text-gray-400">
-              <time dateTime={post.date}>{formattedDate}</time>
-              <span className="inline-block w-1.5 h-1.5 rounded-full bg-gray-500"></span>
+            <div className={`flex flex-wrap items-center gap-2 md:gap-4 text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+              <time dateTime={post.date} className="font-medium">{formattedDate}</time>
+              <span className={`inline-block w-1.5 h-1.5 rounded-full ${darkMode ? 'bg-gray-500' : 'bg-gray-400'}`}></span>
               <span>{readingTime}</span>
               
               {post.tags && post.tags.length > 0 && (
                 <>
-                  <span className="inline-block w-1.5 h-1.5 rounded-full bg-gray-500"></span>
+                  <span className={`inline-block w-1.5 h-1.5 rounded-full ${darkMode ? 'bg-gray-500' : 'bg-gray-400'}`}></span>
                   <div className="flex flex-wrap gap-2">
                     {post.tags.map(tag => (
                       <Link 
                         key={tag} 
                         href={`/blog/tag/${tag}`}
-                        className="inline-block px-2 py-1 bg-[#1c2835] rounded-md text-xs font-medium hover:bg-[#243040] transition-colors"
+                        className={`inline-block px-2 py-1 rounded-md text-xs font-medium transition-colors ${
+                          darkMode 
+                            ? 'bg-[#1c2835] hover:bg-[#243040] text-blue-300' 
+                            : 'bg-blue-50 hover:bg-blue-100 text-blue-700'
+                        }`}
                       >
                         #{tag}
                       </Link>
@@ -126,24 +172,41 @@ export default function BlogPost({ post }: { post: Post }) {
             </div>
           </header>
           
+          {/* Reading Progress Bar */}
+          <div className="fixed top-0 left-0 w-full h-1 z-50 bg-gray-800/20">
+            <div 
+              ref={progressBarRef}
+              className="h-full bg-blue-500 origin-left"
+              style={{ transform: 'scaleX(0)' }}
+            ></div>
+          </div>
+          
           {/* Main content with responsive layout */}
-          <div className="lg:flex lg:gap-8">
+          <div className="lg:flex lg:gap-8 relative">
             {/* Table of contents - desktop sidebar */}
             {!hasTocPlaceholder && (
               <div className="hidden lg:block lg:w-1/4 lg:flex-shrink-0 sticky top-6 self-start">
-                {tocComponent}
+                <div className={`p-4 rounded-lg ${darkMode ? 'bg-[#161f2c]' : 'bg-gray-50'} transition-colors duration-300`}>
+                  <h3 className={`text-lg font-semibold mb-3 ${darkMode ? 'text-white' : 'text-gray-800'}`}>Table of Contents</h3>
+                  {tocComponent}
+                </div>
               </div>
             )}
             
             {/* Table of contents - mobile (at the top) */}
             {!hasTocPlaceholder && (
               <div className="lg:hidden mb-8">
-                {tocComponent}
+                <details className={`p-4 rounded-lg ${darkMode ? 'bg-[#161f2c]' : 'bg-gray-50'} transition-colors duration-300`}>
+                  <summary className={`text-lg font-semibold mb-2 cursor-pointer ${darkMode ? 'text-white' : 'text-gray-800'}`}>
+                    Table of Contents
+                  </summary>
+                  {tocComponent}
+                </details>
               </div>
             )}
             
             {/* Article content */}
-            <div className={`markdown-content ${!hasTocPlaceholder ? 'lg:w-3/4' : 'w-full'}`}>
+            <div className={`markdown-content ${!hasTocPlaceholder ? 'lg:w-3/4' : 'w-full'} ${darkMode ? '' : 'light-mode'}`}>
               {processedParts.map((part) => {
                 // Render code blocks with our custom component
                 if (part.type === 'code') {
@@ -170,7 +233,7 @@ export default function BlogPost({ post }: { post: Post }) {
                                 // Handle inline code
                                 code: ({ inline, children, ...props }: { inline?: boolean; children: React.ReactNode; className?: string }) => {
                                   if (inline) {
-                                    return <code className="bg-[#1a2233] text-white px-1.5 py-0.5 rounded text-sm" {...props}>{children}</code>;
+                                    return <code className={`px-1.5 py-0.5 rounded text-sm ${darkMode ? 'bg-[#1a2233] text-white' : 'bg-gray-100 text-gray-800'}`} {...props}>{children}</code>;
                                   }
                                   return <code className="text-red-500" {...props}>{children}</code>;
                                 },
@@ -178,9 +241,9 @@ export default function BlogPost({ post }: { post: Post }) {
                                 h1: ({ children, ...props }) => {
                                   const id = children?.toString().toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-');
                                   return (
-                                    <h1 id={id as string} className="group flex items-center" {...props}>
+                                    <h1 id={id as string} className="group flex items-start" {...props}>
                                       {children}
-                                      <a href={`#${id}`} className="ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                      <a href={`#${id}`} className="ml-2 opacity-0 group-hover:opacity-100 transition-opacity" aria-label={`Link to ${children}`}>
                                         <span className="text-primary">#</span>
                                       </a>
                                     </h1>
@@ -189,9 +252,9 @@ export default function BlogPost({ post }: { post: Post }) {
                                 h2: ({ children, ...props }) => {
                                   const id = children?.toString().toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-');
                                   return (
-                                    <h2 id={id as string} className="group flex items-center" {...props}>
+                                    <h2 id={id as string} className="group flex items-start" {...props}>
                                       {children}
-                                      <a href={`#${id}`} className="ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                      <a href={`#${id}`} className="ml-2 opacity-0 group-hover:opacity-100 transition-opacity" aria-label={`Link to ${children}`}>
                                         <span className="text-primary">#</span>
                                       </a>
                                     </h2>
@@ -200,9 +263,9 @@ export default function BlogPost({ post }: { post: Post }) {
                                 h3: ({ children, ...props }) => {
                                   const id = children?.toString().toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-');
                                   return (
-                                    <h3 id={id as string} className="group flex items-center" {...props}>
+                                    <h3 id={id as string} className="group flex items-start" {...props}>
                                       {children}
-                                      <a href={`#${id}`} className="ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                      <a href={`#${id}`} className="ml-2 opacity-0 group-hover:opacity-100 transition-opacity" aria-label={`Link to ${children}`}>
                                         <span className="text-primary">#</span>
                                       </a>
                                     </h3>
@@ -211,7 +274,7 @@ export default function BlogPost({ post }: { post: Post }) {
                                 a: ({ children, href, ...props }) => (
                                   <a 
                                     href={href} 
-                                    className="text-primary hover:text-primary/80 underline decoration-dotted underline-offset-2"
+                                    className={`underline-offset-2 ${darkMode ? 'text-primary hover:text-primary/80 decoration-dotted' : 'text-blue-600 hover:text-blue-800 decoration-dotted'}`}
                                     target={href?.startsWith('http') ? '_blank' : undefined}
                                     rel={href?.startsWith('http') ? 'noopener noreferrer' : undefined}
                                     {...props}
@@ -246,7 +309,7 @@ export default function BlogPost({ post }: { post: Post }) {
                       // Handle inline code
                       code: ({ inline, children, ...props }: { inline?: boolean; children: React.ReactNode; className?: string }) => {
                         if (inline) {
-                          return <code className="bg-[#1a2233] text-white px-1.5 py-0.5 rounded text-sm" {...props}>{children}</code>;
+                          return <code className={`px-1.5 py-0.5 rounded text-sm ${darkMode ? 'bg-[#1a2233] text-white' : 'bg-gray-100 text-gray-800'}`} {...props}>{children}</code>;
                         }
                         return <code className="text-red-500" {...props}>{children}</code>;
                       },
@@ -254,9 +317,9 @@ export default function BlogPost({ post }: { post: Post }) {
                       h1: ({ children, ...props }) => {
                         const id = children?.toString().toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-');
                         return (
-                          <h1 id={id as string} className="group flex items-center" {...props}>
+                          <h1 id={id as string} className="group flex items-start" {...props}>
                             {children}
-                            <a href={`#${id}`} className="ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <a href={`#${id}`} className="ml-2 opacity-0 group-hover:opacity-100 transition-opacity" aria-label={`Link to ${children}`}>
                               <span className="text-primary">#</span>
                             </a>
                           </h1>
@@ -265,9 +328,9 @@ export default function BlogPost({ post }: { post: Post }) {
                       h2: ({ children, ...props }) => {
                         const id = children?.toString().toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-');
                         return (
-                          <h2 id={id as string} className="group flex items-center" {...props}>
+                          <h2 id={id as string} className="group flex items-start" {...props}>
                             {children}
-                            <a href={`#${id}`} className="ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <a href={`#${id}`} className="ml-2 opacity-0 group-hover:opacity-100 transition-opacity" aria-label={`Link to ${children}`}>
                               <span className="text-primary">#</span>
                             </a>
                           </h2>
@@ -276,9 +339,9 @@ export default function BlogPost({ post }: { post: Post }) {
                       h3: ({ children, ...props }) => {
                         const id = children?.toString().toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-');
                         return (
-                          <h3 id={id as string} className="group flex items-center" {...props}>
+                          <h3 id={id as string} className="group flex items-start" {...props}>
                             {children}
-                            <a href={`#${id}`} className="ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <a href={`#${id}`} className="ml-2 opacity-0 group-hover:opacity-100 transition-opacity" aria-label={`Link to ${children}`}>
                               <span className="text-primary">#</span>
                             </a>
                           </h3>
@@ -287,7 +350,7 @@ export default function BlogPost({ post }: { post: Post }) {
                       a: ({ children, href, ...props }) => (
                         <a 
                           href={href} 
-                          className="text-primary hover:text-primary/80 underline decoration-dotted underline-offset-2"
+                          className={`underline-offset-2 ${darkMode ? 'text-primary hover:text-primary/80 decoration-dotted' : 'text-blue-600 hover:text-blue-800 decoration-dotted'}`}
                           target={href?.startsWith('http') ? '_blank' : undefined}
                           rel={href?.startsWith('http') ? 'noopener noreferrer' : undefined}
                           {...props}
@@ -313,51 +376,43 @@ export default function BlogPost({ post }: { post: Post }) {
           </div>
         </article>
         
-        {/* Post navigation for Previous/Next post (placeholder) */}
-        <div className="border-t border-[#2a3441] mt-10 pt-8">
-          <h3 className="text-xl font-bold mb-4">Continue Reading</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Link 
-              href="/blog" 
-              className="group p-4 rounded-lg bg-[#121920] border border-[#2a3441] hover:bg-[#1a2229] transition-colors"
-            >
-              <div className="flex items-center text-primary mb-2">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2 group-hover:-translate-x-1 transition-transform duration-200">
-                  <path d="m15 18-6-6 6-6"/>
-                </svg>
-                <span className="text-sm">All Posts</span>
+        {/* Author bio */}
+        <div className={`max-w-3xl mx-auto ${darkMode ? 'bg-[#161f2c]' : 'bg-gray-50'} rounded-xl p-6 mt-8 transition-colors duration-300`}>
+          <div className="flex items-center gap-4">
+            <div className={`w-16 h-16 rounded-full overflow-hidden flex-shrink-0 ${darkMode ? 'bg-gray-700' : 'bg-gray-300'}`}>
+              {/* Author Image */}
+              <div className="w-full h-full flex items-center justify-center text-2xl font-bold">
+                MB
               </div>
-              <p className="text-sm text-gray-300">Browse more articles</p>
-            </Link>
-            
-            <Link 
-              href="/blog" 
-              className="group p-4 rounded-lg bg-[#121920] border border-[#2a3441] hover:bg-[#1a2229] transition-colors text-right"
-            >
-              <div className="flex items-center justify-end text-primary mb-2">
-                <span className="text-sm">Featured Posts</span>
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="ml-2 group-hover:translate-x-1 transition-transform duration-200">
-                  <path d="m9 18 6-6-6-6"/>
-                </svg>
-              </div>
-              <p className="text-sm text-gray-300">Explore featured content</p>
-            </Link>
+            </div>
+            <div>
+              <h3 className={`text-lg font-semibold ${darkMode ? 'text-white' : 'text-gray-800'}`}>
+                Mehrshad Baqerzadegan
+              </h3>
+              <p className={`text-sm mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                Sharing thoughts on technology and best practices.
+              </p>
+            </div>
           </div>
         </div>
+        
+        {/* Scroll to top button */}
+        {showScrollButton && (
+          <button
+            onClick={scrollToTop}
+            className={`fixed bottom-6 right-6 p-3 rounded-full shadow-lg transition-all duration-300 ${
+              darkMode 
+                ? 'bg-blue-600 hover:bg-blue-700 text-white' 
+                : 'bg-white hover:bg-gray-100 text-blue-600 border border-gray-200'
+            }`}
+            aria-label="Scroll to top"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="m18 15-6-6-6 6"/>
+            </svg>
+          </button>
+        )}
       </div>
-      
-      {/* Scroll to top button */}
-      <button
-        onClick={scrollToTop}
-        className={`fixed right-6 bottom-6 p-3 rounded-full bg-primary shadow-lg hover:bg-primary/90 transition-all duration-300 z-50 ${
-          showScrollButton ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10 pointer-events-none'
-        }`}
-        aria-label="Scroll to top"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="m18 15-6-6-6 6"/>
-        </svg>
-      </button>
     </div>
   );
 } 
