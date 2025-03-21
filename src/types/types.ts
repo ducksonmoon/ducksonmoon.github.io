@@ -6,6 +6,8 @@ export interface Post {
   content?: string;
   tags: string[];
   readingTime?: string;
+  coverImage?: string;
+  lastModified?: string;
 }
 
 export type tParams = Promise<{ slug: string }>;

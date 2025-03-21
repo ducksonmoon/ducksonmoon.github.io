@@ -10,7 +10,8 @@ export async function generateMetadata(props: { params: tParams }): Promise<Meta
   const { slug } = await props.params;
   const post = await getPostBySlug(slug);
   
-  const ogImage = "https://ducksonmoon.github.io/duck.svg";
+  // Default image if not provided
+  const ogImage = post.coverImage || "https://ducksonmoon.github.io/duck.svg";
   
   return {
     title: `${post.title} | Mehrshad Baqerzadegan Blog`,
@@ -21,6 +22,7 @@ export async function generateMetadata(props: { params: tParams }): Promise<Meta
       url: `https://ducksonmoon.github.io/blog/post/${slug}`,
       type: "article",
       publishedTime: post.date,
+      modifiedTime: post.lastModified || post.date,
       authors: ["Mehrshad Baqerzadegan"],
       images: [
         {
@@ -37,6 +39,9 @@ export async function generateMetadata(props: { params: tParams }): Promise<Meta
       title: post.title,
       description: post.description || post.content?.substring(0, 160) || "Read this blog post on Mehrshad Baqerzadegan's portfolio",
       images: [ogImage],
+    },
+    alternates: {
+      canonical: `https://ducksonmoon.github.io/blog/post/${slug}`,
     },
   };
 }

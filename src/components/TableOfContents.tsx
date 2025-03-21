@@ -31,29 +31,43 @@ export const TableOfContents: React.FC<TableOfContentsProps> = ({ content }) => 
   }
 
   return (
-    <div className="toc-container my-6 p-4 bg-gray-800 rounded-lg">
-      <h2 className="text-xl font-semibold mb-3">Table of Contents</h2>
-      <ul className="space-y-2">
-        {headings.map((item, index) => (
-          <li 
-            key={index} 
-            className={`${
-              item.level === 1 
-                ? '' 
-                : item.level === 2 
-                  ? 'ml-4' 
-                  : 'ml-8'
-            }`}
-          >
-            <a 
-              href={`#${item.id}`} 
-              className="text-primary hover:underline"
+    <div className="toc-container my-6 p-5 bg-gradient-to-br from-gray-800/80 to-gray-900/80 backdrop-blur-sm rounded-xl border border-gray-700/50 shadow-xl">
+      <h2 className="text-xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-[#38bdf8] to-[#6d28d9]">
+        Table of Contents
+      </h2>
+      <div className="h-px w-full bg-gradient-to-r from-gray-700 via-primary/30 to-gray-700 mb-4"></div>
+      <nav aria-label="Table of contents">
+        <ul className="space-y-3">
+          {headings.map((item, index) => (
+            <li 
+              key={index} 
+              className={`
+                ${item.level === 1 
+                  ? 'mb-2' 
+                  : item.level === 2 
+                    ? 'ml-3' 
+                    : 'ml-6'
+                }
+              `}
             >
-              {item.text}
-            </a>
-          </li>
-        ))}
-      </ul>
+              <a 
+                href={`#${item.id}`}
+                className={`
+                  group block transition-all duration-200 hover:translate-x-1
+                  ${item.level === 1 
+                    ? 'text-white font-medium text-[1rem]' 
+                    : item.level === 2 
+                      ? 'text-gray-200 text-[0.95rem]' 
+                      : 'text-gray-400 text-[0.9rem]'
+                  } hover:text-primary
+                `}
+              >
+                {item.text}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </nav>
     </div>
   );
 }; 
