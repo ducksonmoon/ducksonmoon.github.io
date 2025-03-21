@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 
 interface TableOfContentsProps {
   content: string;
@@ -11,22 +11,26 @@ export const TableOfContents: React.FC<TableOfContentsProps> = ({ content }) => 
   const [activeId, setActiveId] = useState<string>('');
   
   // Extract all headings (# Heading) from the content
-  const headingRegex = /^(#{1,3})\s+(.*)$/gm;
-  let match;
-  const headings: { level: number; text: string; id: string }[] = [];
-  
-  while ((match = headingRegex.exec(content)) !== null) {
-    const level = match[1].length;
-    const text = match[2].replace(/\*\*/g, '').trim();
+  const headings = useMemo(() => {
+    const headingRegex = /^(#{1,3})\s+(.*)$/gm;
+    let match;
+    const headingsArray: { level: number; text: string; id: string }[] = [];
     
-    // Create an ID from the heading text
-    const id = text
-      .toLowerCase()
-      .replace(/[^\w\s-]/g, '')
-      .replace(/\s+/g, '-');
+    while ((match = headingRegex.exec(content)) !== null) {
+      const level = match[1].length;
+      const text = match[2].replace(/\*\*/g, '').trim();
+      
+      // Create an ID from the heading text
+      const id = text
+        .toLowerCase()
+        .replace(/[^\w\s-]/g, '')
+        .replace(/\s+/g, '-');
+      
+      headingsArray.push({ level, text, id });
+    }
     
-    headings.push({ level, text, id });
-  }
+    return headingsArray;
+  }, [content]);
 
   // Set up intersection observer to highlight active section
   useEffect(() => {
@@ -64,11 +68,6 @@ export const TableOfContents: React.FC<TableOfContentsProps> = ({ content }) => 
   if (headings.length === 0) {
     return null;
   }
-
-  // Check if we're in light mode
-  const isDarkMode = 
-    typeof window !== 'undefined' && 
-    document.querySelector('.light-mode') === null;
 
   return (
     <nav className="toc-container" aria-label="Table of contents">
