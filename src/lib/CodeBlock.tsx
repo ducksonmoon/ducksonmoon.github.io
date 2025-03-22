@@ -90,7 +90,7 @@ export const CodeBlock: React.FC<CodeBlockProps> = ({
   return (
     <div 
       ref={codeRef}
-      className={`relative group my-6 rounded-xl overflow-hidden transition-all duration-300 border border-[#2a3038] shadow-lg`}
+      className={`relative group my-8 rounded-xl overflow-hidden transition-all duration-300 border border-[#2a3038] shadow-lg`}
     >
       {/* Header with language label and controls */}
       <div className="flex items-center justify-between px-4 py-2 bg-[#1a1e24] border-b border-[#2a3038]">

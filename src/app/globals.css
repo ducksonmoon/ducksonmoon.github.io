@@ -173,7 +173,7 @@
   border-radius: 8px;
   padding: 1.2em;
   overflow-x: auto;
-  margin: 1.8em 0;
+  margin: 1.8em 0 2.5em 0;
   border: 1px solid var(--border-color);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
@@ -184,6 +184,16 @@
   border-radius: 0;
   font-size: 0.95em;
   line-height: 1.5;
+}
+
+.markdown-content pre + p {
+  margin-top: 2em;
+}
+
+/* Add specific spacing after code blocks component */
+.markdown-content [class*="language-"] + p,
+.markdown-content > div + p {
+  margin-top: 2.5em;
 }
 
 .markdown-content table {
@@ -306,8 +316,13 @@
 }
 
 .light-mode pre {
-  background-color: #f8fafc;
+  background-color: #f5f7fa;
   border: 1px solid #e2e8f0;
+  color: #334155;
+}
+
+.light-mode pre + p {
+  margin-top: 2em;
 }
 
 .light-mode pre code {
