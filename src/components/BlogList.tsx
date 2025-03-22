@@ -36,17 +36,17 @@ export default function BlogList({ posts }: { posts: Post[] }) {
   return (
     <div>
       {/* Search and Filter Section */}
-      <div className="mb-8 bg-[#1a1f27] rounded-xl p-6 border border-gray-800 shadow-md">
-        <div className="sm:flex sm:items-center sm:justify-between sm:mb-6">
+      <div className="mb-8 bg-[#1a1f27] rounded-xl p-5 sm:p-6 border border-gray-800 shadow-md">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between sm:mb-6">
           <h2 className="text-xl font-bold text-white mb-4 sm:mb-0">Browse Articles</h2>
           
           {/* View Mode Selector */}
           <div className="flex items-center space-x-2 mb-4 sm:mb-0">
             <button
               onClick={() => setDisplayMode("grid")}
-              className={`p-2 rounded-md transition-colors ${
+              className={`p-2 rounded-md transition-all duration-200 ${
                 displayMode === "grid"
-                  ? "bg-blue-600 text-white"
+                  ? "bg-blue-600 text-white shadow-md shadow-blue-600/20 scale-105"
                   : "bg-gray-800 text-gray-300 hover:bg-gray-700"
               }`}
               aria-label="Grid view"
@@ -58,11 +58,12 @@ export default function BlogList({ posts }: { posts: Post[] }) {
                 <rect x="3" y="14" width="7" height="7"></rect>
               </svg>
             </button>
+            
             <button
               onClick={() => setDisplayMode("list")}
-              className={`p-2 rounded-md transition-colors ${
+              className={`p-2 rounded-md transition-all duration-200 ${
                 displayMode === "list"
-                  ? "bg-blue-600 text-white"
+                  ? "bg-blue-600 text-white shadow-md shadow-blue-600/20 scale-105"
                   : "bg-gray-800 text-gray-300 hover:bg-gray-700"
               }`}
               aria-label="List view"
@@ -86,13 +87,18 @@ export default function BlogList({ posts }: { posts: Post[] }) {
         
         {/* Tags */}
         <div>
-          <h3 className="text-sm text-gray-400 mb-3 font-medium">Filter by tag:</h3>
-          <div className="flex flex-wrap gap-2">
+          <h3 className="text-sm text-gray-400 mb-3 font-medium flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+            </svg>
+            Filter by tag:
+          </h3>
+          <div className="flex flex-wrap gap-2 max-h-[140px] overflow-y-auto pr-1 pb-1 custom-scrollbar">
             <button
               onClick={() => setSelectedTag(null)}
               className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 ${
                 !selectedTag 
-                  ? "bg-blue-600 text-white hover:bg-blue-700" 
+                  ? "bg-blue-600 text-white hover:bg-blue-700 shadow-sm shadow-blue-600/20 scale-105" 
                   : "bg-gray-800 text-gray-300 hover:bg-gray-700"
               }`}
             >
@@ -102,13 +108,13 @@ export default function BlogList({ posts }: { posts: Post[] }) {
               <button
                 key={tag}
                 onClick={() => setSelectedTag(tag)}
-                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 ${
+                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 flex items-center ${
                   selectedTag === tag 
-                    ? "bg-blue-600 text-white hover:bg-blue-700" 
+                    ? "bg-blue-600 text-white hover:bg-blue-700 shadow-sm shadow-blue-600/20 scale-105" 
                     : "bg-gray-800 text-gray-300 hover:bg-gray-700"
                 }`}
               >
-                #{tag}
+                <span className="mr-0.5">#</span>{tag}
               </button>
             ))}
           </div>
@@ -116,12 +122,42 @@ export default function BlogList({ posts }: { posts: Post[] }) {
       </div>
 
       {/* Post Count */}
-      <div className="mb-6 pb-4 border-b border-gray-800 text-gray-400 text-sm flex items-center justify-between">
-        <div>
-          <span className="font-medium text-white">{filteredPosts.length}</span> {filteredPosts.length === 1 ? 'post' : 'posts'} 
-          {selectedTag && <span className="ml-1">tagged with <span className="text-blue-400 font-medium">#{selectedTag}</span></span>}
-          {searchQuery && <span className="ml-1">matching "<span className="text-blue-400 font-medium">{searchQuery}</span>"</span>}
+      <div className="mb-6 pb-4 border-b border-gray-800 text-gray-400 text-sm flex flex-wrap items-center justify-between">
+        <div className="flex items-center">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+          </svg>
+          <span className="font-medium text-white">{filteredPosts.length}</span> 
+          <span className="ml-1">{filteredPosts.length === 1 ? 'post' : 'posts'}</span>
+          {selectedTag && (
+            <div className="flex items-center ml-2">
+              <span>tagged with</span>
+              <span className="ml-1 px-2 py-0.5 bg-blue-900/30 text-blue-300 rounded-full text-xs font-medium flex items-center">
+                <span className="mr-0.5">#</span>{selectedTag}
+              </span>
+            </div>
+          )}
+          {searchQuery && (
+            <div className="flex items-center ml-2">
+              <span>matching</span>
+              <span className="ml-1 px-2 py-0.5 bg-blue-900/30 text-blue-300 rounded-full text-xs font-medium">
+                "{searchQuery}"
+              </span>
+            </div>
+          )}
         </div>
+        
+        {(selectedTag || searchQuery) && (
+          <button 
+            onClick={() => { setSelectedTag(null); setSearchQuery(""); }}
+            className="mt-2 sm:mt-0 text-sm text-blue-400 hover:text-blue-300 transition-colors flex items-center"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+            Clear filters
+          </button>
+        )}
       </div>
 
       {/* Posts Grid/List */}
