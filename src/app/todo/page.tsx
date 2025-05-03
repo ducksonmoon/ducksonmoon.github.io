@@ -54,7 +54,6 @@ export default function TodoPage() {
     priority: 'medium',
   });
   const [activeTab, setActiveTab] = useState<'todos' | 'roadmap' | 'projects'>('todos');
-  const [selectedProject, setSelectedProject] = useState<number | null>(null);
   const [todoPriority, setTodoPriority] = useState<'low' | 'medium' | 'high'>('medium');
   const [todoDueDate, setTodoDueDate] = useState('');
   const [todoProjectId, setTodoProjectId] = useState(1);
