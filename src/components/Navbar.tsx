@@ -69,6 +69,7 @@ export default function Navbar() {
             { name: "Home", path: "/" },
             { name: "Blog", path: "/blog" },
             { name: "About", path: "/about" },
+            { name: "Todo", path: "/todo" },
           ].map((item) => (
             <li key={item.path} className="w-full md:w-auto text-center">
               <Link
