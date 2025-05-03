@@ -278,7 +278,7 @@ export default function AboutPage() {
           <div className="relative">
             <div className="absolute inset-0 rounded-full bg-gradient-to-r from-[#38bdf8] to-[#6d28d9] blur-md opacity-70 animate-pulse"></div>
             <Image
-              src="/profile-fox.jpg"
+              src="/profile.jpg"
               alt="Mehrshad's Profile Picture"
               width={220}
               height={220}
@@ -300,9 +300,8 @@ export default function AboutPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.4 }}
             >
-              Software Engineer, Frontend -- developing both enterprise (B2B) and consumer (B2C) web applications.
-              Proficient in JavaScript and TypeScript, with expertise in Angular and React for professional projects, Node.js and Nest.js
-              for side projects. Skilled at crafting system designs and micro frontend architecture. Working with different stacks and
+              Software Engineer, Frontend - developing both enterprise (B2B) and consumer (B2C) web applications.
+              Proficient in JavaScript and TypeScript. Skilled at crafting system designs and micro frontend architecture. Working with different stacks and
               frameworks.
             </motion.p>
             
