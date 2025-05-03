@@ -86,11 +86,11 @@ export default function BlogPost({ post }: { post: Post }) {
   const contentParts = preprocessMarkdown(post.content || "");
   
   const processedParts = contentParts.map(part => {
-    if (part.type === 'markdown' && part.content.includes(TOC_PLACEHOLDER)) {
-      const splitContent = part.content.split(TOC_PLACEHOLDER);
+    if (part.type === 'markdown' && (part.content ?? "").includes(TOC_PLACEHOLDER)) {
+      const splitContent = (part.content ?? "").split(TOC_PLACEHOLDER);
       return {
         ...part,
-        content: processContent(part.content),
+        content: processContent(part.content ?? ""),
         tocPositions: splitContent.length - 1,
         splitContent
       };
